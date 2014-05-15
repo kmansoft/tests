@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">KitKat AlarmTest</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="alarm_receiver_name">Alarm receiver</string>
+    <string name="service_startsync_name">Start sync service</string>
+    <string name="service_keepalive_name">Keep alive service</string>
+    <string name="widget_name">KitKatAlarm Test Widget</string>
+
+</resources>
