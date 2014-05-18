@@ -40,11 +40,6 @@ public class AlarmReceiver extends BroadcastReceiver {
 	private static final int ALARM_WINDOW = 30 * 1000;
 
 	/**
-	 * Account list
-	 */
-	public static final String EXTRA_PLANNED_LIST = "plannedList";
-
-	/**
 	 * Alarm setting methods
 	 */
 	public static final int ALARM_METHOD_SETWINDOW = 0;
@@ -140,9 +135,6 @@ public class AlarmReceiver extends BroadcastReceiver {
 		if (Build.VERSION.SDK_INT >= 16) {
 			intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
 		}
-
-		final long[] plannedList = new long[] { 1, 2, 3, 4, 5 };
-		intent.putExtra(EXTRA_PLANNED_LIST, plannedList);
 
 		final PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
 				PendingIntent.FLAG_CANCEL_CURRENT);

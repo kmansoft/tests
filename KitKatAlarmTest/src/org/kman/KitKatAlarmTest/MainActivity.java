@@ -3,8 +3,9 @@ package org.kman.KitKatAlarmTest;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import org.kman.KitKatAlarmTest.R;
+
 import org.kman.tests.utils.MyLog;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -120,6 +121,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		f.delete();
 		MyLog.i(TAG, "The log has been reset");
 		onLogRefresh();
+		TouchWiz.sendTotalUnreadCount(this, 0);
 	}
 
 	private EditText mLogText;
