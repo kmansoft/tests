@@ -46,6 +46,10 @@ public class AlarmReceiver extends BroadcastReceiver {
 	public static final int ALARM_METHOD_SETEXACT = 1;
 	public static final int ALARM_METHOD_SETALARM = 2;
 
+	// DEBUG
+	public static final String EXTRA_SET_AT = "setAt";
+	public static final String EXTRA_TARGET_TIME = "targetTime";
+
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		MyLog.i(TAG, "onReceive: %s", intent);
@@ -61,11 +65,20 @@ public class AlarmReceiver extends BroadcastReceiver {
 						sbExtras.append(", ");
 					}
 					sbExtras.append(key).append(" = ").append(extras.get(key));
+					if (key.equals(EXTRA_SET_AT) || key.equals(EXTRA_TARGET_TIME)
+							|| key.equals("android.intent.extra.ALARM_TARGET_TIME")) {
+						sbExtras.append(String.format(" %1$tF %1$tT.%1$tL", extras.getLong(key)));
+					}
 				}
 				if (sbExtras.length() == 0) {
 					sbExtras.append("[no extras]");
 				}
 				MyLog.i(TAG, "onReceive extras: %s", sbExtras);
+
+				final long targetTime = extras.getLong(EXTRA_TARGET_TIME);
+				if (targetTime != 0 && targetTime - 1000 > System.currentTimeMillis()) {
+					MyLog.i(TAG, "onReceive ***** fired too early *****");
+				}
 			}
 		}
 
@@ -85,6 +98,11 @@ public class AlarmReceiver extends BroadcastReceiver {
 			} else if (action.equals(Intent.ACTION_TIME_CHANGED) || action.equals(Intent.ACTION_TIMEZONE_CHANGED)) {
 				/*
 				 * The user changed the time zone or time, make sure to reschedule the alarm
+				 */
+				setNextAlarmAlways(context, false);
+			} else if (action.equals(Intent.ACTION_BOOT_COMPLETED)) {
+				/*
+				 * Boot completed
 				 */
 				setNextAlarmAlways(context, false);
 			}
@@ -114,13 +132,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
 	public static void setNextAlarmAlways(Context context, boolean check) {
 		final SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
-
 		final long currentTime = System.currentTimeMillis();
-		final long scheduled = prefs.getLong(SHARED_PREFS_NEXT_TIME_KEY, 0);
-
-		if (scheduled != 0 && currentTime < scheduled - 1000) {
-			MyLog.i(TAG, "***** WRONG ALARM TIME ***** scheduled: %1$tF %1$tT now: %2$tF %2$tT", scheduled, currentTime);
-		}
 
 		setNextAlarm(context, currentTime, prefs);
 	}
@@ -135,6 +147,9 @@ public class AlarmReceiver extends BroadcastReceiver {
 		if (Build.VERSION.SDK_INT >= 16) {
 			intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
 		}
+
+		intent.putExtra(EXTRA_SET_AT, currentTime);
+		intent.putExtra(EXTRA_TARGET_TIME, scheduled);
 
 		final PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
 				PendingIntent.FLAG_CANCEL_CURRENT);
