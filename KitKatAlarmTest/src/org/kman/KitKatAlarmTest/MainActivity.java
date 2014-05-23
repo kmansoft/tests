@@ -9,7 +9,9 @@ import java.util.regex.Pattern;
 import org.kman.tests.utils.MyLog;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Typeface;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -47,6 +49,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 		AlarmReceiver.setNextAlarmWithCheck(this);
 
+		checkConnectivity();
+
 		onLogRefresh();
 	}
 
@@ -78,6 +82,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			onLogReset();
 			break;
 		}
+	}
+
+	@SuppressWarnings("deprecation")
+	private void checkConnectivity() {
+		if (mConnectivityManager == null) {
+			mConnectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		}
+		final boolean isEnabled = mConnectivityManager.getBackgroundDataSetting();
+		MyLog.i(TAG, "getBackgroundDataSetting = %b", isEnabled);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -161,4 +174,5 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private TextView mLogText;
 	private Button mLogRefresh;
 	private Button mLogReset;
+	private ConnectivityManager mConnectivityManager;
 }

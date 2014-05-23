@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.os.IBinder;
 
 public class StartSyncService extends Service {
@@ -76,12 +77,14 @@ public class StartSyncService extends Service {
 		private static final int ITER_DELAY = 500;
 
 		WorkItem(Context context, int startId) {
+			mService = context;
 			mContext = context.getApplicationContext();
 			mLockManager = LockManager.get(mContext);
 			mLockManager.acquireSpecialFlag(LockManager.SPECIAL_FLAG_RUNNING_SYNC);
 			mStartId = startId;
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public void run() {
 
@@ -94,6 +97,11 @@ public class StartSyncService extends Service {
 
 			final PendingIntent pending = PendingIntent.getActivity(mContext, 0, intent,
 					PendingIntent.FLAG_UPDATE_CURRENT);
+
+			ConnectivityManager connectivityManager = (ConnectivityManager) mService
+					.getSystemService(Context.CONNECTIVITY_SERVICE);
+			final boolean isEnabled = connectivityManager.getBackgroundDataSetting();
+			MyLog.i(TAG, "getBackgroundDataSetting = %b", isEnabled);
 
 			for (int i = 0; i < ITER_COUNT; ++i) {
 				final String msg = String.format("Running %d/%d", i + 1, ITER_COUNT);
@@ -117,6 +125,7 @@ public class StartSyncService extends Service {
 			mLockManager.releaseSpecialFlag(LockManager.SPECIAL_FLAG_RUNNING_SYNC);
 		}
 
+		private Context mService;
 		private Context mContext;
 		private LockManager mLockManager;
 		private int mStartId;
