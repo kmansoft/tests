@@ -3,16 +3,23 @@ package org.kman.KitKatAlarmTest;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.kman.tests.utils.MyLog;
 
 import android.app.Activity;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.TextAppearanceSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 public class MainActivity extends Activity implements View.OnClickListener {
 
@@ -21,6 +28,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private static final int MAX_LOG_TEXT = 30 * 1024;
 	private static final int MAX_NEWLINE_SEARCH = 1024;
 
+	private static final Pattern TIME_PATTERN = Pattern.compile("\\d{2}:\\d{2}:\\d{2}.\\d{3}");
+	private static final Pattern BAD_PATTERN = Pattern.compile("\\*{5}[^\\*]\\*{5}");
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -28,7 +38,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		MyLog.i(TAG, "onCreate");
 
 		setContentView(R.layout.activity_main);
-		mLogText = (EditText) findViewById(R.id.log_text);
+		mLogScroll = (ScrollView) findViewById(R.id.log_scroll);
+		mLogText = (TextView) findViewById(R.id.log_text);
 		mLogRefresh = (Button) findViewById(R.id.log_refresh);
 		mLogRefresh.setOnClickListener(this);
 		mLogReset = (Button) findViewById(R.id.log_reset);
@@ -99,9 +110,31 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			}
 
 			final String s = new String(b, 0, textOffset, readCount - textOffset);
-			mLogText.setText(s);
-			mLogText.setSelection(s.length());
+			final SpannableStringBuilder ssb = new SpannableStringBuilder(s);
 
+			final Matcher mTime = TIME_PATTERN.matcher(s);
+			while (mTime.find()) {
+				final int start = mTime.start();
+				final int end = mTime.end();
+				ssb.setSpan(new TextAppearanceSpan(null, Typeface.BOLD, -1, null, null), start, end,
+						Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
+			}
+
+			// final Matcher mBad = BAD_PATTERN.matcher(s);
+			// while (mBad.find()) {
+			// final int start = mBad.start();
+			// final int end = mBad.end();
+			// ssb.setSpan(new TextAppearanceSpan(null, Typeface.BOLD, -1, , null), start, end,
+			// Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
+			// }
+			//
+			mLogText.setText(ssb);
+			mLogScroll.post(new Runnable() {
+				@Override
+				public void run() {
+					mLogScroll.scrollTo(0, mLogText.getMeasuredHeight());
+				}
+			});
 		} catch (Exception x) {
 			mLogText.setText(x.toString());
 		} finally {
@@ -124,7 +157,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		TouchWiz.sendTotalUnreadCount(this, 0);
 	}
 
-	private EditText mLogText;
+	private ScrollView mLogScroll;
+	private TextView mLogText;
 	private Button mLogRefresh;
 	private Button mLogReset;
 }

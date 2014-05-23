@@ -1,7 +1,5 @@
 package org.kman.KitKatAlarmTest;
 
-import org.kman.tests.utils.MyLog;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +24,6 @@ public class WidgetReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		MyLog.i(TAG, "onReceive: %s", intent);
+		// MyLog.i(TAG, "onReceive: %s", intent);
 	}
 }

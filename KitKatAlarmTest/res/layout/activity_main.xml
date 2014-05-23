@@ -12,14 +12,21 @@
         android:layout_height="match_parent"
         android:orientation="vertical" >
 
-        <EditText
-            android:id="@+id/log_text"
+        <ScrollView
+            android:id="@+id/log_scroll"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:gravity="top|left"
-            android:inputType="textMultiLine"
-            android:textSize="14sp" />
+            android:fillViewport="true" >
+
+            <TextView
+                android:id="@+id/log_text"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:gravity="top|left"
+                android:padding="8dp"
+                android:textSize="14sp" />
+        </ScrollView>
 
         <LinearLayout
             android:layout_width="match_parent"
