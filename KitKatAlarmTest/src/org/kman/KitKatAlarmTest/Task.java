@@ -1,8 +1,21 @@
 package org.kman.KitKatAlarmTest;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.ConnectException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+
+import javax.net.ssl.SSLSocketFactory;
+
+import org.kman.KitKatAlarmTest.net.AddressResolution;
+import org.kman.KitKatAlarmTest.net.ConnectionManager;
+import org.kman.KitKatAlarmTest.net.SSLSocketFactoryMaker;
+import org.kman.KitKatAlarmTest.net.StreamUtil;
 import org.kman.tests.utils.MyLog;
 
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -12,6 +25,9 @@ public class Task {
 
 	private static final int ITER_COUNT = 10;
 	private static final int ITER_DELAY = 500;
+
+	private static final String SERVER = "imap.gmail.com";
+	private static final int PORT = 993;
 
 	public Task(Context context, int startId) {
 		mContext = context;
@@ -26,32 +42,127 @@ public class Task {
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-		final PendingIntent pending = PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
 		ConnectivityManager connectivityManager = (ConnectivityManager) mContext
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		final boolean isEnabled = connectivityManager.getBackgroundDataSetting();
 		MyLog.i(TAG, "getBackgroundDataSetting = %b", isEnabled);
 
-		for (int i = 0; i < ITER_COUNT; ++i) {
-			final String msg = String.format("Running %d/%d", i + 1, ITER_COUNT);
-			final KeepAliveService.Info info = new KeepAliveService.Info(msg);
-			KeepAliveService.Facade.start(mContext, info, pending);
+		// for (int i = 0; i < ITER_COUNT; ++i) {
+		// final String msg = String.format("Running %d/%d", i + 1, ITER_COUNT);
+		// final KeepAliveService.Info info = new KeepAliveService.Info(msg);
+		//
+		// final PendingIntent pending = PendingIntent.getActivity(mContext, 0, intent,
+		// PendingIntent.FLAG_UPDATE_CURRENT);
+		// KeepAliveService.Facade.start(mContext, info, pending);
+		//
+		// if (i != ITER_COUNT - 1) {
+		// try {
+		// Thread.sleep(ITER_DELAY);
+		// } catch (InterruptedException e) {
+		// // Ignore
+		// }
+		// }
+		//
+		// WidgetReceiver.sendBroadcast(mContext);
+		// }
 
-			WidgetReceiver.sendBroadcast(mContext);
-
-			if (i != ITER_COUNT - 1) {
-				try {
-					Thread.sleep(ITER_DELAY);
-				} catch (InterruptedException e) {
-					// Ignore
-				}
-			}
+		// Networking test
+		try {
+			testNetworking();
+		} catch (Exception x) {
+			MyLog.w(TAG, "Error in networking test", x);
 		}
 
 		TouchWiz.sendTotalUnreadCount(mContext, mStartId);
 
 		KeepAliveService.Facade.stop(mContext);
+	}
+
+	@SuppressWarnings("deprecation")
+	private void testNetworking() throws IOException {
+		Socket socket = null;
+		InputStream streamInput = null;
+		OutputStream streamOutput = null;
+
+		/*
+		 * Connect at socket level
+		 */
+		final InetAddress[] addrList = AddressResolution.resolveServerName(SERVER);
+		final SSLSocketFactory socketFactory = SSLSocketFactoryMaker.getStrictFactory(mContext);
+
+		final long nTimeStart = System.currentTimeMillis();
+		final int addrListSize = addrList.length;
+		for (int i = 0; i < addrListSize; ++i) {
+			final InetSocketAddress sockAddr = new InetSocketAddress(addrList[i], PORT);
+			MyLog.i(TAG, "Trying: %s", sockAddr);
+			socket = socketFactory.createSocket();
+			try {
+				socket.connect(sockAddr, SSLSocketFactoryMaker.CONNECT_TIMEOUT);
+				MyLog.i(TAG, "Socket connection completed");
+				break; // Success
+			} catch (IOException x) {
+				StreamUtil.closeSocket(socket);
+				socket = null;
+
+				if (i == addrListSize - 1) {
+					throw x;
+				}
+			}
+		}
+
+		if (socket == null || !socket.isConnected()) {
+			throw new ConnectException("Could not connect to " + SERVER);
+		}
+
+		try {
+			/*
+			 * Get streams, this negotiates SSL
+			 */
+			socket.setSoTimeout(SSLSocketFactoryMaker.DATA_TIMEOUT);
+			streamInput = socket.getInputStream();
+			streamOutput = socket.getOutputStream();
+
+			long nTimeConnect = System.currentTimeMillis() - nTimeStart;
+
+			MyLog.i(TAG, "Connection to %s:%d completed: %s, time = %.2f sec", SERVER, PORT,
+					socket.getRemoteSocketAddress(), nTimeConnect / 1000.0f);
+
+			int nSendBufSize = socket.getSendBufferSize();
+			int nRecvBufSize = socket.getReceiveBufferSize();
+
+			MyLog.i(TAG, "Buffer sizes: %d send, %d receive", nSendBufSize, nRecvBufSize);
+
+		} catch (RuntimeException x) {
+			StreamUtil.closeSocket(socket);
+			StreamUtil.closeStream(streamInput);
+			StreamUtil.closeStream(streamOutput);
+			throw new IOException(x);
+		} catch (IOException x) {
+			StreamUtil.closeSocket(socket);
+			StreamUtil.closeStream(streamInput);
+			StreamUtil.closeStream(streamOutput);
+			throw x;
+		}
+
+		try {
+			/*
+			 * Read something
+			 */
+			final byte[] b = new byte[8192];
+			final int r = streamInput.read(b);
+			final String s = new String(b, 0, 0, r);
+			MyLog.i(TAG, "Read: %s", s);
+		} catch (Exception x) {
+			StreamUtil.closeSocket(socket);
+			StreamUtil.closeStream(streamInput);
+			StreamUtil.closeStream(streamOutput);
+			throw new IOException(x);
+		}
+
+		final ConnectionManager connectionManager = ConnectionManager.get(mContext);
+		final ConnectionManager.Connection connection = new ConnectionManager.Connection();
+		connection.mSocket = socket;
+		connectionManager.postClose(connection);
 	}
 
 	private Context mContext;
