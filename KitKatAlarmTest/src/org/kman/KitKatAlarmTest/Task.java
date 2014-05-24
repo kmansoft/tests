@@ -16,6 +16,7 @@ import org.kman.KitKatAlarmTest.net.SSLSocketFactoryMaker;
 import org.kman.KitKatAlarmTest.net.StreamUtil;
 import org.kman.tests.utils.MyLog;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -47,30 +48,30 @@ public class Task {
 		final boolean isEnabled = connectivityManager.getBackgroundDataSetting();
 		MyLog.i(TAG, "getBackgroundDataSetting = %b", isEnabled);
 
-		// for (int i = 0; i < ITER_COUNT; ++i) {
-		// final String msg = String.format("Running %d/%d", i + 1, ITER_COUNT);
-		// final KeepAliveService.Info info = new KeepAliveService.Info(msg);
-		//
-		// final PendingIntent pending = PendingIntent.getActivity(mContext, 0, intent,
-		// PendingIntent.FLAG_UPDATE_CURRENT);
-		// KeepAliveService.Facade.start(mContext, info, pending);
-		//
-		// if (i != ITER_COUNT - 1) {
-		// try {
-		// Thread.sleep(ITER_DELAY);
-		// } catch (InterruptedException e) {
-		// // Ignore
-		// }
-		// }
-		//
-		// WidgetReceiver.sendBroadcast(mContext);
-		// }
-
 		// Networking test
 		try {
 			testNetworking();
 		} catch (Exception x) {
 			MyLog.w(TAG, "Error in networking test", x);
+		}
+
+		for (int i = 0; i < ITER_COUNT; ++i) {
+			final String msg = String.format("Running %d/%d", i + 1, ITER_COUNT);
+			final KeepAliveService.Info info = new KeepAliveService.Info(msg);
+
+			final PendingIntent pending = PendingIntent.getActivity(mContext, 0, intent,
+					PendingIntent.FLAG_UPDATE_CURRENT);
+			KeepAliveService.Facade.start(mContext, info, pending);
+
+			if (i != ITER_COUNT - 1) {
+				try {
+					Thread.sleep(ITER_DELAY);
+				} catch (InterruptedException e) {
+					// Ignore
+				}
+			}
+
+			WidgetReceiver.sendBroadcast(mContext);
 		}
 
 		TouchWiz.sendTotalUnreadCount(mContext, mStartId);

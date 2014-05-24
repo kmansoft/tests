@@ -1,11 +1,11 @@
 package org.kman.KitKatAlarmTest;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.kman.KitKatAlarmTest.net.StreamUtil;
 import org.kman.tests.utils.MyLog;
 
 import android.app.Activity;
@@ -164,13 +164,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		} catch (Exception x) {
 			mLogText.setText(x.toString());
 		} finally {
-			if (raf != null) {
-				try {
-					raf.close();
-				} catch (IOException x) {
-					// Ignore
-				}
-			}
+			StreamUtil.closeRaf(raf);
 		}
 	}
 
