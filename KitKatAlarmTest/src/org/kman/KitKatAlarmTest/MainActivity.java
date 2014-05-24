@@ -10,6 +10,7 @@ import org.kman.tests.utils.MyLog;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
@@ -42,6 +43,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		setContentView(R.layout.activity_main);
 		mLogScroll = (ScrollView) findViewById(R.id.log_scroll);
 		mLogText = (TextView) findViewById(R.id.log_text);
+
+		mRunSync = (Button) findViewById(R.id.run_sync);
+		mRunSync.setOnClickListener(this);
 		mLogRefresh = (Button) findViewById(R.id.log_refresh);
 		mLogRefresh.setOnClickListener(this);
 		mLogReset = (Button) findViewById(R.id.log_reset);
@@ -75,6 +79,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
+		case R.id.run_sync:
+			onRunSync();
+			break;
 		case R.id.log_refresh:
 			onLogRefresh();
 			break;
@@ -91,6 +98,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		}
 		final boolean isEnabled = mConnectivityManager.getBackgroundDataSetting();
 		MyLog.i(TAG, "getBackgroundDataSetting = %b", isEnabled);
+	}
+
+	private void onRunSync() {
+		final Intent intent = new Intent(StartSyncService.ACTION_SYNC);
+		intent.setClass(this, StartSyncService.class);
+		startService(intent);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -172,7 +185,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 	private ScrollView mLogScroll;
 	private TextView mLogText;
+
+	private Button mRunSync;
 	private Button mLogRefresh;
 	private Button mLogReset;
+
 	private ConnectivityManager mConnectivityManager;
 }
