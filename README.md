@@ -1,6 +1,5 @@
-## KitKatAlarmTest
-
-### Demonstrates an issue with AlarmManager alarms being delivered too early on Samsung devices (tested on two) for targetApi=19. 
+### KitKatAlarmTest
+*Demonstrates an issue with AlarmManager alarms being delivered too early on Samsung devices (tested on two) for targetApi=19*
 
 The documentation guarantees that any of set(), setWindow(), setExact() will never deliver the alarm before
 the scheduled time, only exactly on time or after.
