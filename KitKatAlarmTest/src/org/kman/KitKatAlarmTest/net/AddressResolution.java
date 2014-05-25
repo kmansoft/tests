@@ -12,12 +12,14 @@ public class AddressResolution {
 	private static final String TAG = "AddressResolution";
 	private static final String DNS_FAILURE = "DNS resolution failed";
 
+	private static/* final */boolean VERBOSE_LOG = false;
+
 	/*
 	 * There are cases when Android is trying to use an IPv6 DNS record, even though the device does
 	 * not have IPv6 connectivity. We have to resolve and try IPv6 + IPv4 ourselves.
 	 */
 	public static InetAddress[] resolveServerName(String name) throws UnknownHostException {
-		MyLog.i(TAG, "Resolving address for %s", name);
+		if (VERBOSE_LOG) MyLog.i(TAG, "Resolving address for %s", name);
 		final InetAddress[] addrList = InetAddress.getAllByName(name);
 
 		InetAddress addr6 = null;
@@ -26,12 +28,12 @@ public class AddressResolution {
 		if (addrList != null) {
 			for (InetAddress addr : addrList) {
 				if (addr instanceof Inet6Address) {
-					MyLog.i(TAG, "IPv6: %s", addr);
+					if (VERBOSE_LOG) MyLog.i(TAG, "IPv6: %s", addr);
 					if (addr6 == null) {
 						addr6 = addr;
 					}
 				} else if (addr instanceof Inet4Address) {
-					MyLog.i(TAG, "IPv4: %s", addr);
+					if (VERBOSE_LOG) MyLog.i(TAG, "IPv4: %s", addr);
 					if (addr4 == null) {
 						addr4 = addr;
 					}

@@ -11,6 +11,8 @@ import org.kman.tests.utils.MyLog;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
@@ -32,7 +34,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private static final int MAX_NEWLINE_SEARCH = 1024;
 
 	private static final Pattern TIME_PATTERN = Pattern.compile("\\d{2}:\\d{2}:\\d{2}.\\d{3}");
-	private static final Pattern BAD_PATTERN = Pattern.compile("\\*{5}[^\\*]\\*{5}");
+	private static final Pattern BAD_PATTERN = Pattern.compile("\\*{5}[^\\*]+\\*{5}");
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -146,14 +148,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
 						Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
 			}
 
-			// final Matcher mBad = BAD_PATTERN.matcher(s);
-			// while (mBad.find()) {
-			// final int start = mBad.start();
-			// final int end = mBad.end();
-			// ssb.setSpan(new TextAppearanceSpan(null, Typeface.BOLD, -1, , null), start, end,
-			// Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
-			// }
-			//
+			final Resources res = getResources();
+			final ColorStateList badColor = res.getColorStateList(R.color.error_color);
+			final Matcher mBad = BAD_PATTERN.matcher(s);
+			while (mBad.find()) {
+				final int start = mBad.start();
+				final int end = mBad.end();
+				ssb.setSpan(new TextAppearanceSpan(null, Typeface.BOLD, -1, badColor, null), start, end,
+						Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
+			}
+
 			mLogText.setText(ssb);
 			mLogScroll.post(new Runnable() {
 				@Override

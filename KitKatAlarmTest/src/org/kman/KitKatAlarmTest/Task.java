@@ -30,55 +30,65 @@ public class Task {
 	private static final String SERVER = "imap.gmail.com";
 	private static final int PORT = 993;
 
+	private static/* final */boolean VERBOSE_LOG = false;
+
 	public Task(Context context, int startId) {
 		mContext = context;
 		mStartId = startId;
 	}
 
+	@SuppressWarnings("deprecation")
 	public void execute() {
-		final Intent intent = new Intent(mContext, MainActivity.class);
-		intent.setAction(Intent.ACTION_MAIN);
-		intent.addCategory(Intent.CATEGORY_LAUNCHER);
-
-		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
+		// Not sure if this is needed
 		ConnectivityManager connectivityManager = (ConnectivityManager) mContext
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		final boolean isEnabled = connectivityManager.getBackgroundDataSetting();
-		MyLog.i(TAG, "getBackgroundDataSetting = %b", isEnabled);
+		if (VERBOSE_LOG) MyLog.i(TAG, "getBackgroundDataSetting = %b", isEnabled);
 
-		// Networking test
+		// Networking test -- this is what causes alarms to fire too early
 		try {
 			testNetworking();
 		} catch (Exception x) {
 			MyLog.w(TAG, "Error in networking test", x);
 		}
 
-		for (int i = 0; i < ITER_COUNT; ++i) {
-			final String msg = String.format("Running %d/%d", i + 1, ITER_COUNT);
-			final KeepAliveService.Info info = new KeepAliveService.Info(msg);
-
-			final PendingIntent pending = PendingIntent.getActivity(mContext, 0, intent,
-					PendingIntent.FLAG_UPDATE_CURRENT);
-			KeepAliveService.Facade.start(mContext, info, pending);
-
-			if (i != ITER_COUNT - 1) {
-				try {
-					Thread.sleep(ITER_DELAY);
-				} catch (InterruptedException e) {
-					// Ignore
-				}
-			}
-
-			WidgetReceiver.sendBroadcast(mContext);
-		}
-
-		TouchWiz.sendTotalUnreadCount(mContext, mStartId);
-
-		KeepAliveService.Facade.stop(mContext);
+		// Shot in the dark test -- did not cause alarm issue, not sure if needed
+		testShotInTheDark();
 	}
 
+	/**
+	 * Running this code cause AlarmManager alarms to fire early.
+	 * 
+	 * The documentation is very clear and explicit that even for for targetApi >= 19, alarms are
+	 * _never ever under any circumstance_ delivered earlier than the scheduled time.
+	 * 
+	 * This applies to all of: setAlarm, setWindow, setExact.
+	 * 
+	 * On two Samsung devices, I'm seeing alarms being delivered early.
+	 * 
+	 * How much early?
+	 * 
+	 * This app, Galaxy Note 3 N9005 - from 15 seconds
+	 * 
+	 * This app, Galaxy S4 i9505 - 1-10 minutes
+	 * 
+	 * My real app, both of these devices - up to 3-10 minutes
+	 * 
+	 * All apps set alarms every 15 minutes.
+	 * 
+	 * These cases can be seen in the app's log as:
+	 * 
+	 * AlarmReceiver ***** fired too early *****
+	 * 
+	 * and are highlighted in red.
+	 * 
+	 * Immediately above that is a dump of the alarm's extras, which includes 1) when the alarm was
+	 * set and 2) for what time it was scheduled.
+	 * 
+	 * No such issue on Nexus 5 and HTC One Max, both also with 4.4.2
+	 * 
+	 * @throws IOException
+	 */
 	@SuppressWarnings("deprecation")
 	private void testNetworking() throws IOException {
 		Socket socket = null;
@@ -164,6 +174,38 @@ public class Task {
 		final ConnectionManager.Connection connection = new ConnectionManager.Connection();
 		connection.mSocket = socket;
 		connectionManager.postClose(connection);
+	}
+
+	private void testShotInTheDark() {
+		final Intent intent = new Intent(mContext, MainActivity.class);
+		intent.setAction(Intent.ACTION_MAIN);
+		intent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+		for (int i = 0; i < ITER_COUNT; ++i) {
+			final String msg = String.format("Running %d/%d", i + 1, ITER_COUNT);
+			final KeepAliveService.Info info = new KeepAliveService.Info(msg);
+
+			final PendingIntent pending = PendingIntent.getActivity(mContext, 0, intent,
+					PendingIntent.FLAG_UPDATE_CURRENT);
+			KeepAliveService.Facade.start(mContext, info, pending);
+
+			if (i != ITER_COUNT - 1) {
+				try {
+					Thread.sleep(ITER_DELAY);
+				} catch (InterruptedException e) {
+					// Ignore
+				}
+			}
+
+			WidgetReceiver.sendBroadcast(mContext);
+		}
+
+		TouchWiz.sendTotalUnreadCount(mContext, mStartId);
+
+		KeepAliveService.Facade.stop(mContext);
 	}
 
 	private Context mContext;
