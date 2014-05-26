@@ -16,10 +16,7 @@ import org.kman.KitKatAlarmTest.net.SSLSocketFactoryMaker;
 import org.kman.KitKatAlarmTest.net.StreamUtil;
 import org.kman.tests.utils.MyLog;
 
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.net.ConnectivityManager;
 
 public class Task {
 	private static final String TAG = "Task";
@@ -30,20 +27,21 @@ public class Task {
 	private static final String SERVER = "imap.gmail.com";
 	private static final int PORT = 993;
 
-	private static/* final */boolean VERBOSE_LOG = false;
+	// private static/* final */boolean VERBOSE_LOG = false;
 
 	public Task(Context context, int startId) {
 		mContext = context;
 		mStartId = startId;
 	}
 
-	@SuppressWarnings("deprecation")
 	public void execute() {
 		// Not sure if this is needed
-		ConnectivityManager connectivityManager = (ConnectivityManager) mContext
-				.getSystemService(Context.CONNECTIVITY_SERVICE);
-		final boolean isEnabled = connectivityManager.getBackgroundDataSetting();
-		if (VERBOSE_LOG) MyLog.i(TAG, "getBackgroundDataSetting = %b", isEnabled);
+
+		// DEBUG
+		// ConnectivityManager connectivityManager = (ConnectivityManager) mContext
+		// .getSystemService(Context.CONNECTIVITY_SERVICE);
+		// final boolean isEnabled = connectivityManager.getBackgroundDataSetting();
+		// if (VERBOSE_LOG) MyLog.i(TAG, "getBackgroundDataSetting = %b", isEnabled);
 
 		// Networking test -- this is what causes alarms to fire too early
 		try {
@@ -177,20 +175,21 @@ public class Task {
 	}
 
 	private void testShotInTheDark() {
-		final Intent intent = new Intent(mContext, MainActivity.class);
-		intent.setAction(Intent.ACTION_MAIN);
-		intent.addCategory(Intent.CATEGORY_LAUNCHER);
-
-		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		// final Intent intent = new Intent(mContext, MainActivity.class);
+		// intent.setAction(Intent.ACTION_MAIN);
+		// intent.addCategory(Intent.CATEGORY_LAUNCHER);
+		//
+		// intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		// intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 		for (int i = 0; i < ITER_COUNT; ++i) {
-			final String msg = String.format("Running %d/%d", i + 1, ITER_COUNT);
-			final KeepAliveService.Info info = new KeepAliveService.Info(msg);
-
-			final PendingIntent pending = PendingIntent.getActivity(mContext, 0, intent,
-					PendingIntent.FLAG_UPDATE_CURRENT);
-			KeepAliveService.Facade.start(mContext, info, pending);
+			// DEBUG
+			// final String msg = String.format("Running %d/%d", i + 1, ITER_COUNT);
+			// final KeepAliveService.Info info = new KeepAliveService.Info(msg);
+			//
+			// final PendingIntent pending = PendingIntent.getActivity(mContext, 0, intent,
+			// PendingIntent.FLAG_UPDATE_CURRENT);
+			// KeepAliveService.Facade.start(mContext, info, pending);
 
 			if (i != ITER_COUNT - 1) {
 				try {
@@ -200,12 +199,12 @@ public class Task {
 				}
 			}
 
-			WidgetReceiver.sendBroadcast(mContext);
+			// DEBUG WidgetReceiver.sendBroadcast(mContext);
 		}
 
-		TouchWiz.sendTotalUnreadCount(mContext, mStartId);
+		// DEBUG TouchWiz.sendTotalUnreadCount(mContext, mStartId);
 
-		KeepAliveService.Facade.stop(mContext);
+		// DEBUG KeepAliveService.Facade.stop(mContext);
 	}
 
 	private Context mContext;

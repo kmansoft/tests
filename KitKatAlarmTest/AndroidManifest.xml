@@ -57,14 +57,16 @@
             android:exported="false"
             android:label="@string/service_startsync_name" />
 
-        <!-- Keep alive service -->
+        <!-- Keep alive service
 
         <service
             android:name=".KeepAliveService"
             android:exported="false"
             android:label="@string/service_keepalive_name" />
 
-        <!-- Message counter widget related things -->
+ 		-->
+ 
+        <!-- Message counter widget related things
 
         <receiver
             android:name=".WidgetReceiver"
@@ -74,6 +76,9 @@
                 <action android:name="org.kman.KitKatAlarmTest.FOLDER_STATE_URI_CHANGE" />
             </intent-filter>
         </receiver>
+        
+        -->
+         
     </application>
 
 </manifest>

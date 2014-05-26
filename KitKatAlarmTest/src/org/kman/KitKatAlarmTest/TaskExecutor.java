@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import org.kman.tests.utils.MyLog;
 
 import android.content.Context;
-import android.os.Process;
 
 public class TaskExecutor implements Runnable {
 	private static final String TAG = "TaskExecutor";
@@ -37,7 +36,7 @@ public class TaskExecutor implements Runnable {
 
 	@Override
 	public void run() {
-		Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+		// DEBUG Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
 
 		for (;;) {
 			Task task;
