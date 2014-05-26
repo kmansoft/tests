@@ -9,7 +9,6 @@ import org.kman.KitKatAlarmTest.net.StreamUtil;
 import org.kman.tests.utils.MyLog;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -95,11 +94,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 	@SuppressWarnings("deprecation")
 	private void checkConnectivity() {
-		if (mConnectivityManager == null) {
-			mConnectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		}
-		final boolean isEnabled = mConnectivityManager.getBackgroundDataSetting();
-		MyLog.i(TAG, "getBackgroundDataSetting = %b", isEnabled);
+		// DEBUG
+		// if (mConnectivityManager == null) {
+		// mConnectivityManager = (ConnectivityManager)
+		// getSystemService(Context.CONNECTIVITY_SERVICE);
+		// }
+		// final boolean isEnabled = mConnectivityManager.getBackgroundDataSetting();
+		// MyLog.i(TAG, "getBackgroundDataSetting = %b", isEnabled);
 	}
 
 	private void onRunSync() {
