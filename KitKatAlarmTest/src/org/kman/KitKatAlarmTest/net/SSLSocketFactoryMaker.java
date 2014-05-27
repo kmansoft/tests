@@ -11,11 +11,7 @@ import javax.net.ssl.X509TrustManager;
 
 import org.kman.tests.utils.MyLog;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.net.SSLCertificateSocketFactory;
-import android.net.SSLSessionCache;
-import android.os.Build;
 
 public abstract class SSLSocketFactoryMaker {
 
@@ -66,9 +62,10 @@ public abstract class SSLSocketFactoryMaker {
 	private static SSLSocketFactory gAcceptAllFactory;
 
 	private static SSLSocketFactoryMaker factory() {
-		if (Build.VERSION.SDK_INT >= 8) {
-			return new SSLSocketFactoryMaker_api8();
-		}
+		// DEBUG
+		// if (Build.VERSION.SDK_INT >= 8) {
+		// return new SSLSocketFactoryMaker_api8();
+		// }
 		return new SSLSocketFactoryMaker_api5();
 	}
 
@@ -115,18 +112,18 @@ class SSLSocketFactoryMaker_api5 extends SSLSocketFactoryMaker {
 	}
 }
 
-@TargetApi(8)
-class SSLSocketFactoryMaker_api8 extends SSLSocketFactoryMaker {
-
-	@Override
-	protected SSLSocketFactory createStrictFactory(Context context) {
-		final SSLSessionCache cache = SSLSessionCacheCompat.getSSLSessionCache(context);
-		return SSLCertificateSocketFactory.getDefault(CONNECT_TIMEOUT, cache);
-	}
-
-	@Override
-	protected SSLSocketFactory createRelaxedFactory(Context context) {
-		final SSLSessionCache cache = SSLSessionCacheCompat.getSSLSessionCache(context);
-		return SSLCertificateSocketFactory.getInsecure(CONNECT_TIMEOUT, cache);
-	}
-}
+// @TargetApi(8)
+// class SSLSocketFactoryMaker_api8 extends SSLSocketFactoryMaker {
+//
+// @Override
+// protected SSLSocketFactory createStrictFactory(Context context) {
+// final SSLSessionCache cache = SSLSessionCacheCompat.getSSLSessionCache(context);
+// return SSLCertificateSocketFactory.getDefault(CONNECT_TIMEOUT, cache);
+// }
+//
+// @Override
+// protected SSLSocketFactory createRelaxedFactory(Context context) {
+// final SSLSessionCache cache = SSLSessionCacheCompat.getSSLSessionCache(context);
+// return SSLCertificateSocketFactory.getInsecure(CONNECT_TIMEOUT, cache);
+// }
+// }

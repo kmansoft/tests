@@ -22,6 +22,7 @@ public class StreamUtil {
 	public static void closeStream(InputStream stream) {
 		if (stream != null) {
 			try {
+				MyLog.i(TAG, "Closing stream %s", stream);
 				stream.close();
 			} catch (IOException x) {
 				MyLog.i(TAG, "Stream close error, ignoring");
@@ -38,6 +39,7 @@ public class StreamUtil {
 	public static void closeStream(OutputStream stream) {
 		if (stream != null) {
 			try {
+				MyLog.i(TAG, "Closing stream %s", stream);
 				stream.close();
 			} catch (IOException x) {
 				MyLog.i(TAG, "Stream close error, ignoring");

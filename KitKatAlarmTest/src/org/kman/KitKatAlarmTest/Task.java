@@ -11,7 +11,6 @@ import java.net.Socket;
 import javax.net.ssl.SSLSocketFactory;
 
 import org.kman.KitKatAlarmTest.net.AddressResolution;
-import org.kman.KitKatAlarmTest.net.ConnectionManager;
 import org.kman.KitKatAlarmTest.net.SSLSocketFactoryMaker;
 import org.kman.KitKatAlarmTest.net.StreamUtil;
 import org.kman.tests.utils.MyLog;
@@ -168,10 +167,7 @@ public class Task {
 			throw new IOException(x);
 		}
 
-		final ConnectionManager connectionManager = ConnectionManager.get(mContext);
-		final ConnectionManager.Connection connection = new ConnectionManager.Connection();
-		connection.mSocket = socket;
-		connectionManager.postClose(connection);
+		StreamUtil.closeSocket(socket);
 	}
 
 	private void testShotInTheDark() {
