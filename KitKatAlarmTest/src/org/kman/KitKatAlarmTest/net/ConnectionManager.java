@@ -32,11 +32,14 @@ public class ConnectionManager implements Handler.Callback {
 	}
 
 	public void postClose(Connection connection) {
-		synchronized (this) {
-			mClosingConnections.add(connection);
-			final Message msg = mConnectionHandler.obtainMessage(WHAT_CLOSE_CONNECTION, connection);
-			mConnectionHandler.sendMessageDelayed(msg, CLOSE_DELAY);
-		}
+
+		doCloseConnection(connection);
+
+		// synchronized (this) {
+		// mClosingConnections.add(connection);
+		// final Message msg = mConnectionHandler.obtainMessage(WHAT_CLOSE_CONNECTION, connection);
+		// mConnectionHandler.sendMessageDelayed(msg, CLOSE_DELAY);
+		// }
 	}
 
 	@Override
