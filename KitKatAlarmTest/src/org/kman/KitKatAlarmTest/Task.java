@@ -168,6 +168,8 @@ public class Task {
 		}
 
 		StreamUtil.closeSocket(socket);
+		StreamUtil.closeStream(streamInput);
+		StreamUtil.closeStream(streamOutput);
 	}
 
 	private void testShotInTheDark() {
