@@ -6,14 +6,9 @@ the scheduled time, only exactly on time or after.
 
 I ran the test app on two Samsung devices with 4.4.2 that I have: a Note 3 N9005, and a Galaxy S4 i9505.
 
-The issue happens on both of them.
+The issue happens on both of them. No matter if I use setWindow or setExact. It also survives reboots, cleaning Dalvik Cache, updating the firmware.
 
-In my real app, I'm seeing same issue on both Samsungs, and do not see it on a Nexus 5 or an HTC One Max, both
-also with 4.4.2.
-
-The thing that triggers the bug is connecting to a network server (and possibly leaving the opened connection
-open for a time after the scheduled task completes, and closing them later). I've not tested yet if the
-trigger is leaving a connection open, or establishing a network connection at all.
+The thing that triggers the bug is connecting to a network server. Leaving a connection open between the alarms is not neessary for the issue to occur.
 
 The relevant code is in [Task.java](KitKatAlarmTest/src/org/kman/KitKatAlarmTest/Task.java)
 
@@ -27,4 +22,7 @@ Immediately above that is a dump of the alarm's extras, which includes 1) when t
 what time it was scheduled.
 
 [Screenshot from Galaxy S4](KitKatAlarmTest/screenshots/example-samsung-s4.png)
+
+In my real app, I'm seeing same issue on both Samsungs, and do not see it on a Nexus 5 or an HTC One Max, both
+also with 4.4.2.
 
