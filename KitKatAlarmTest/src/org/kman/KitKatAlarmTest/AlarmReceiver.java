@@ -84,7 +84,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
 		final String action = intent.getAction();
 		if (action != null) {
-			if (action.equals(ACTION_ALARM_TICK)) {
+			if (action.startsWith(ACTION_ALARM_TICK)) {
 				/*
 				 * Our alarm went off
 				 */
@@ -142,7 +142,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 		final long scheduled = computeNextAlarmTime(currentTime);
 		final int versionCodeNew = PackageUtils.getVersionCode(context);
 
-		final Intent intent = new Intent(AlarmReceiver.ACTION_ALARM_TICK);
+		final Intent intent = createBroadcastIntent(AlarmReceiver.ACTION_ALARM_TICK, scheduled);
 		intent.setClass(context, AlarmReceiver.class);
 		if (Build.VERSION.SDK_INT >= 16) {
 			intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
@@ -152,22 +152,30 @@ public class AlarmReceiver extends BroadcastReceiver {
 		intent.putExtra(EXTRA_TARGET_TIME, scheduled);
 
 		final PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
-				PendingIntent.FLAG_CANCEL_CURRENT);
+				PendingIntent.FLAG_UPDATE_CURRENT);
 
 		AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
-		am.setExact(AlarmManager.RTC_WAKEUP, scheduled, pendingIntent);
-		MyLog.i(TAG, "Set next alarm: setExact for %1$tF %1$tT for %2$s", scheduled, pendingIntent);
-
-		// am.setWindow(AlarmManager.RTC_WAKEUP, scheduled, ALARM_WINDOW, pendingIntent);
-		// MyLog.i(TAG, "Set next alarm: setWindow for %1$tF %1$tT for %2$s", scheduled,
+		// am.setExact(AlarmManager.RTC_WAKEUP, scheduled, pendingIntent);
+		// MyLog.i(TAG, "Set next alarm: setExact for %1$tF %1$tT for %2$s", scheduled,
 		// pendingIntent);
+
+		am.setWindow(AlarmManager.RTC_WAKEUP, scheduled, ALARM_WINDOW, pendingIntent);
+		MyLog.i(TAG, "Set next alarm: setWindow for %1$tF %1$tT for %2$s", scheduled, pendingIntent);
 
 		SharedPreferences sharedPrefs = context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPrefs.edit();
 		editor.putLong(SHARED_PREFS_NEXT_TIME_KEY, scheduled);
 		editor.putInt(SHARED_PREFS_VERSION_CODE_KEY, versionCodeNew);
 		editor.commit();
+	}
+
+	private static Intent createBroadcastIntent(String action, long time) {
+		final Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(time);
+		final String s = String.format("%s_%02d_%02d_%02d", action, cal.get(Calendar.HOUR_OF_DAY),
+				cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
+		return new Intent(s);
 	}
 
 	private static long computeNextAlarmTime(long currentTime) {
