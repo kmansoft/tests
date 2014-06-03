@@ -173,8 +173,8 @@ public class AlarmReceiver extends BroadcastReceiver {
 	private static Intent createBroadcastIntent(String action, long time) {
 		final Calendar cal = Calendar.getInstance();
 		cal.setTimeInMillis(time);
-		final String s = String.format("%s_%02d_%02d_%02d", action, cal.get(Calendar.HOUR_OF_DAY),
-				cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
+		final String s = String.format("%s_%02d_%02d_%02d_%d", action, cal.get(Calendar.HOUR_OF_DAY),
+				cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), time);
 		return new Intent(s);
 	}
 
