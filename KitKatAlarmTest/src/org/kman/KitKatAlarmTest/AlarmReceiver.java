@@ -27,7 +27,6 @@ public class AlarmReceiver extends BroadcastReceiver {
 	private static final String SHARED_PREFS_NAME = "alarm";
 	private static final String SHARED_PREFS_NEXT_TIME_KEY = "next";
 	private static final String SHARED_PREFS_VERSION_CODE_KEY = "versionCode";
-	private static final String SHARED_PREFS_METHOD = "method";
 
 	/**
 	 * Alarm period
@@ -35,9 +34,14 @@ public class AlarmReceiver extends BroadcastReceiver {
 	private static final long ALARM_PERIOD = 15 * 60 * 1000;
 
 	/**
+	 * Alarm method: use setWindow or if false, use setExact
+	 */
+	private static final boolean ALARM_USE_SETWINDOW = true;
+
+	/**
 	 * Inexact alarm window
 	 */
-	private static final int ALARM_WINDOW = 30 * 1000;
+	private static final long ALARM_WINDOW = 30 * 1000;
 
 	/**
 	 * Alarm setting methods
@@ -49,16 +53,19 @@ public class AlarmReceiver extends BroadcastReceiver {
 	// DEBUG
 	public static final String EXTRA_SET_AT = "setAt";
 	public static final String EXTRA_TARGET_TIME = "targetTime";
+	public static final String EXTRA_WINDOW = "window";
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		MyLog.i(TAG, "onReceive: %s", intent);
 
-		StringBuilder sbExtras = null;
+		String action = null;
 		if (intent != null) {
+			action = intent.getAction();
+
 			Bundle extras = intent.getExtras();
 			if (extras != null) {
-				sbExtras = new StringBuilder();
+				final StringBuilder sbExtras = new StringBuilder();
 				final Set<String> keySet = extras.keySet();
 				for (String key : keySet) {
 					if (sbExtras.length() != 0) {
@@ -76,13 +83,50 @@ public class AlarmReceiver extends BroadcastReceiver {
 				MyLog.i(TAG, "onReceive extras: %s", sbExtras);
 
 				final long targetTime = extras.getLong(EXTRA_TARGET_TIME);
-				if (targetTime != 0 && targetTime - 1000 > System.currentTimeMillis()) {
-					MyLog.i(TAG, "onReceive ***** fired too early *****");
+				final long now = System.currentTimeMillis();
+				if (action != null && action.equals(ACTION_ALARM_TICK)) {
+					/*
+					 * This is our alarm action
+					 */
+					if (targetTime != 0 && now < targetTime - 1000) {
+						MyLog.i(TAG, "onReceive ***** fired too early *****");
+
+						final Intent newIntent = new Intent(ACTION_ALARM_TICK);
+						intent.setClass(context, AlarmReceiver.class);
+						if (Build.VERSION.SDK_INT >= 16) {
+							intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+						}
+
+						intent.putExtra(EXTRA_SET_AT, now);
+						intent.putExtra(EXTRA_TARGET_TIME, targetTime);
+
+						if (ALARM_USE_SETWINDOW) {
+							intent.putExtra(EXTRA_WINDOW, ALARM_WINDOW);
+						}
+
+						final PendingIntent newPendingIntent = PendingIntent.getBroadcast(context, 0, newIntent,
+								PendingIntent.FLAG_UPDATE_CURRENT);
+
+						AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+						if (ALARM_USE_SETWINDOW) {
+							am.setWindow(AlarmManager.RTC_WAKEUP, targetTime, ALARM_WINDOW, newPendingIntent);
+							MyLog.i(TAG, "onReceive set again: setWindow for %1$tF %1$tT for %2$s", targetTime,
+									newPendingIntent);
+						} else {
+							am.setExact(AlarmManager.RTC_WAKEUP, targetTime, newPendingIntent);
+							MyLog.i(TAG, "onReceive set again: setExact for %1$tF %1$tT for %2$s", targetTime,
+									newPendingIntent);
+						}
+
+						return;
+					}
 				}
+
+				MyLog.i(TAG, "onReceive ##### fired on or after #####");
 			}
 		}
 
-		final String action = intent.getAction();
 		if (action != null) {
 			if (action.startsWith(ACTION_ALARM_TICK)) {
 				/*
@@ -139,10 +183,28 @@ public class AlarmReceiver extends BroadcastReceiver {
 
 	private static void setNextAlarm(Context context, long currentTime, SharedPreferences prefs) {
 
+		/*
+		 * This helped somewhat, but not quite
+		 */
+
+		// Try to cancel any existing pending intents
+		// final Intent cancelIntent = new Intent(AlarmReceiver.ACTION_ALARM_TICK);
+		// cancelIntent.setClass(context, AlarmReceiver.class);
+		// if (Build.VERSION.SDK_INT >= 16) {
+		// cancelIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+		// }
+		// final PendingIntent cancelPendingIntent = PendingIntent.getBroadcast(context, 0,
+		// cancelIntent,
+		// PendingIntent.FLAG_NO_CREATE);
+		// if (cancelPendingIntent != null) {
+		// MyLog.i(TAG, "Canceling existing PendingIntent: %s", cancelPendingIntent);
+		// cancelPendingIntent.cancel();
+		// }
+
 		final long scheduled = computeNextAlarmTime(currentTime);
 		final int versionCodeNew = PackageUtils.getVersionCode(context);
 
-		final Intent intent = createBroadcastIntent(AlarmReceiver.ACTION_ALARM_TICK, scheduled);
+		final Intent intent = new Intent(AlarmReceiver.ACTION_ALARM_TICK);
 		intent.setClass(context, AlarmReceiver.class);
 		if (Build.VERSION.SDK_INT >= 16) {
 			intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
@@ -151,17 +213,22 @@ public class AlarmReceiver extends BroadcastReceiver {
 		intent.putExtra(EXTRA_SET_AT, currentTime);
 		intent.putExtra(EXTRA_TARGET_TIME, scheduled);
 
+		if (ALARM_USE_SETWINDOW) {
+			intent.putExtra(EXTRA_WINDOW, ALARM_WINDOW);
+		}
+
 		final PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
 				PendingIntent.FLAG_UPDATE_CURRENT);
 
 		AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
-		// am.setExact(AlarmManager.RTC_WAKEUP, scheduled, pendingIntent);
-		// MyLog.i(TAG, "Set next alarm: setExact for %1$tF %1$tT for %2$s", scheduled,
-		// pendingIntent);
-
-		am.setWindow(AlarmManager.RTC_WAKEUP, scheduled, ALARM_WINDOW, pendingIntent);
-		MyLog.i(TAG, "Set next alarm: setWindow for %1$tF %1$tT for %2$s", scheduled, pendingIntent);
+		if (ALARM_USE_SETWINDOW) {
+			am.setWindow(AlarmManager.RTC_WAKEUP, scheduled, ALARM_WINDOW, pendingIntent);
+			MyLog.i(TAG, "Set next alarm: setWindow for %1$tF %1$tT for %2$s", scheduled, pendingIntent);
+		} else {
+			am.setExact(AlarmManager.RTC_WAKEUP, scheduled, pendingIntent);
+			MyLog.i(TAG, "Set next alarm: setExact for %1$tF %1$tT for %2$s", scheduled, pendingIntent);
+		}
 
 		SharedPreferences sharedPrefs = context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPrefs.edit();
@@ -170,13 +237,17 @@ public class AlarmReceiver extends BroadcastReceiver {
 		editor.commit();
 	}
 
-	private static Intent createBroadcastIntent(String action, long time) {
-		final Calendar cal = Calendar.getInstance();
-		cal.setTimeInMillis(time);
-		final String s = String.format("%s_%02d_%02d_%02d_%d", action, cal.get(Calendar.HOUR_OF_DAY),
-				cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), time);
-		return new Intent(s);
-	}
+	/*
+	 * This did not help
+	 */
+
+	// private static Intent createBroadcastIntent(String action, long time) {
+	// final Calendar cal = Calendar.getInstance();
+	// cal.setTimeInMillis(time);
+	// final String s = String.format("%s_%02d_%02d_%02d_%d", action, cal.get(Calendar.HOUR_OF_DAY),
+	// cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), time);
+	// return new Intent(s);
+	// }
 
 	private static long computeNextAlarmTime(long currentTime) {
 		final long referenceTime = computeReferenceTime(currentTime);

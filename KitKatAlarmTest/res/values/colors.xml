@@ -2,5 +2,6 @@
 <resources>
 
     <color name="error_color">#FFAA0000</color>
+    <color name="again_color">#FF00AA00</color>
 
 </resources>

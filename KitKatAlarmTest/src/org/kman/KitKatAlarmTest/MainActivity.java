@@ -13,7 +13,6 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Typeface;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -34,6 +33,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 	private static final Pattern TIME_PATTERN = Pattern.compile("\\d{2}:\\d{2}:\\d{2}.\\d{3}");
 	private static final Pattern BAD_PATTERN = Pattern.compile("\\*{5}[^\\*]+\\*{5}");
+	private static final Pattern GOOD_PATTERN = Pattern.compile("\\#{5}[^\\*]+\\#{5}");
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +53,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		mLogReset.setOnClickListener(this);
 
 		AlarmReceiver.setNextAlarmWithCheck(this);
-
-		checkConnectivity();
 
 		onLogRefresh();
 	}
@@ -90,17 +88,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			onLogReset();
 			break;
 		}
-	}
-
-	@SuppressWarnings("deprecation")
-	private void checkConnectivity() {
-		// DEBUG
-		// if (mConnectivityManager == null) {
-		// mConnectivityManager = (ConnectivityManager)
-		// getSystemService(Context.CONNECTIVITY_SERVICE);
-		// }
-		// final boolean isEnabled = mConnectivityManager.getBackgroundDataSetting();
-		// MyLog.i(TAG, "getBackgroundDataSetting = %b", isEnabled);
 	}
 
 	private void onRunSync() {
@@ -141,21 +128,30 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			final String s = new String(b, 0, textOffset, readCount - textOffset);
 			final SpannableStringBuilder ssb = new SpannableStringBuilder(s);
 
-			final Matcher mTime = TIME_PATTERN.matcher(s);
-			while (mTime.find()) {
-				final int start = mTime.start();
-				final int end = mTime.end();
+			final Matcher timeMatcher = TIME_PATTERN.matcher(s);
+			while (timeMatcher.find()) {
+				final int start = timeMatcher.start();
+				final int end = timeMatcher.end();
 				ssb.setSpan(new TextAppearanceSpan(null, Typeface.BOLD, -1, null, null), start, end,
 						Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
 			}
 
 			final Resources res = getResources();
 			final ColorStateList badColor = res.getColorStateList(R.color.error_color);
-			final Matcher mBad = BAD_PATTERN.matcher(s);
-			while (mBad.find()) {
-				final int start = mBad.start();
-				final int end = mBad.end();
+			final Matcher badMatcher = BAD_PATTERN.matcher(s);
+			while (badMatcher.find()) {
+				final int start = badMatcher.start();
+				final int end = badMatcher.end();
 				ssb.setSpan(new TextAppearanceSpan(null, Typeface.BOLD, -1, badColor, null), start, end,
+						Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
+			}
+
+			final ColorStateList goodColor = res.getColorStateList(R.color.again_color);
+			final Matcher goodMatcher = GOOD_PATTERN.matcher(s);
+			while (goodMatcher.find()) {
+				final int start = goodMatcher.start();
+				final int end = goodMatcher.end();
+				ssb.setSpan(new TextAppearanceSpan(null, Typeface.BOLD, -1, goodColor, null), start, end,
 						Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
 			}
 
@@ -188,6 +184,4 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private Button mRunSync;
 	private Button mLogRefresh;
 	private Button mLogReset;
-
-	private ConnectivityManager mConnectivityManager;
 }
