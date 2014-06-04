@@ -121,9 +121,9 @@ public class AlarmReceiver extends BroadcastReceiver {
 
 						return;
 					}
-				}
 
-				MyLog.i(TAG, "onReceive ##### fired on or after #####");
+					MyLog.i(TAG, "onReceive ##### fired on or after #####");
+				}
 			}
 		}
 
