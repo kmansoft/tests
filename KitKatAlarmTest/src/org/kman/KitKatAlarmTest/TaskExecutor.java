@@ -36,8 +36,6 @@ public class TaskExecutor implements Runnable {
 
 	@Override
 	public void run() {
-		// DEBUG Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
-
 		for (;;) {
 			Task task;
 			synchronized (this) {

@@ -13,7 +13,6 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Typeface;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -179,7 +178,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		f.delete();
 		MyLog.i(TAG, "The log has been reset");
 		onLogRefresh();
-		TouchWiz.sendTotalUnreadCount(this, 0);
 	}
 
 	private ScrollView mLogScroll;
@@ -188,6 +186,4 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private Button mRunSync;
 	private Button mLogRefresh;
 	private Button mLogReset;
-
-	private ConnectivityManager mConnectivityManager;
 }
