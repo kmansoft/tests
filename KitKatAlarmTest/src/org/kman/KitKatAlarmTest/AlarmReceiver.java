@@ -91,38 +91,48 @@ public class AlarmReceiver extends BroadcastReceiver {
 					if (targetTime != 0 && now < targetTime - 1000) {
 						MyLog.i(TAG, "onReceive ***** fired too early *****");
 
-						final Intent newIntent = new Intent(ACTION_ALARM_TICK);
-						intent.setClass(context, AlarmReceiver.class);
-						if (Build.VERSION.SDK_INT >= 16) {
-							intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
-						}
-
-						intent.putExtra(EXTRA_SET_AT, now);
-						intent.putExtra(EXTRA_TARGET_TIME, targetTime);
-
-						if (ALARM_USE_SETWINDOW) {
-							intent.putExtra(EXTRA_WINDOW, ALARM_WINDOW);
-						}
-
-						final PendingIntent newPendingIntent = PendingIntent.getBroadcast(context, 0, newIntent,
-								PendingIntent.FLAG_UPDATE_CURRENT);
-
-						AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-
-						if (ALARM_USE_SETWINDOW) {
-							am.setWindow(AlarmManager.RTC_WAKEUP, targetTime, ALARM_WINDOW, newPendingIntent);
-							MyLog.i(TAG, "onReceive set again: setWindow for %1$tF %1$tT for %2$s", targetTime,
-									newPendingIntent);
-						} else {
-							am.setExact(AlarmManager.RTC_WAKEUP, targetTime, newPendingIntent);
-							MyLog.i(TAG, "onReceive set again: setExact for %1$tF %1$tT for %2$s", targetTime,
-									newPendingIntent);
-						}
-
-						return;
+						// This seems fine, but in practice, on the Note 3, causes alarms to fire
+						// more than once (!!!)
+						//
+						// final Intent newIntent = new Intent(ACTION_ALARM_TICK);
+						// intent.setClass(context, AlarmReceiver.class);
+						// if (Build.VERSION.SDK_INT >= 16) {
+						// intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+						// }
+						//
+						// intent.putExtra(EXTRA_SET_AT, now);
+						// intent.putExtra(EXTRA_TARGET_TIME, targetTime);
+						//
+						// if (ALARM_USE_SETWINDOW) {
+						// intent.putExtra(EXTRA_WINDOW, ALARM_WINDOW);
+						// }
+						//
+						// final PendingIntent newPendingIntent =
+						// PendingIntent.getBroadcast(context, 0, newIntent,
+						// PendingIntent.FLAG_UPDATE_CURRENT);
+						//
+						// AlarmManager am = (AlarmManager)
+						// context.getSystemService(Context.ALARM_SERVICE);
+						//
+						// if (ALARM_USE_SETWINDOW) {
+						// am.setWindow(AlarmManager.RTC_WAKEUP, targetTime, ALARM_WINDOW,
+						// newPendingIntent);
+						// MyLog.i(TAG, "onReceive set again: setWindow for %1$tF %1$tT for %2$s",
+						// targetTime,
+						// newPendingIntent);
+						// } else {
+						// am.setExact(AlarmManager.RTC_WAKEUP, targetTime, newPendingIntent);
+						// MyLog.i(TAG, "onReceive set again: setExact for %1$tF %1$tT for %2$s",
+						// targetTime,
+						// newPendingIntent);
+						// }
+						//
+						// return;
 					}
 
-					MyLog.i(TAG, "onReceive ##### fired on or after #####");
+					if (targetTime != 0 && now >= targetTime - 1000) {
+						MyLog.i(TAG, "onReceive ##### fired on or after #####");
+					}
 				}
 			}
 		}
@@ -132,7 +142,8 @@ public class AlarmReceiver extends BroadcastReceiver {
 				/*
 				 * Our alarm went off
 				 */
-				setNextAlarmAlways(context, true);
+				// setNextAlarmAlways(context);
+				SetAlarmService.submitSetNextAlarm(context);
 
 				/*
 				 * Start the service
@@ -143,12 +154,14 @@ public class AlarmReceiver extends BroadcastReceiver {
 				/*
 				 * The user changed the time zone or time, make sure to reschedule the alarm
 				 */
-				setNextAlarmAlways(context, false);
+				// setNextAlarmAlways(context);
+				SetAlarmService.submitSetNextAlarm(context);
 			} else if (action.equals(Intent.ACTION_BOOT_COMPLETED)) {
 				/*
 				 * Boot completed
 				 */
-				setNextAlarmAlways(context, false);
+				// setNextAlarmAlways(context);
+				SetAlarmService.submitSetNextAlarm(context);
 			}
 		}
 	}
@@ -174,7 +187,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 		}
 	}
 
-	public static void setNextAlarmAlways(Context context, boolean check) {
+	public static void setNextAlarmAlways(Context context) {
 		final SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
 		final long currentTime = System.currentTimeMillis();
 
