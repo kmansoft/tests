@@ -25,7 +25,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
@@ -82,7 +81,7 @@ public class PollReceiver extends BroadcastReceiver {
 		when.set(Calendar.SECOND, 0);
 		when.set(Calendar.MILLISECOND, 0);
 
-		Log.d("PollReceiver", "Scheduling for " + when.toString());
+		MyLog.i("PollReceiver", "Scheduling for " + when.toString());
 
 		mgr.setWindow(AlarmManager.RTC_WAKEUP, when.getTimeInMillis(), 30000, pi);
 	}

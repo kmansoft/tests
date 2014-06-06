@@ -16,6 +16,7 @@
 
     <application
         android:icon="@drawable/ic_launcher"
+        android:name="com.commonsware.android.wakesvc.App"
         android:label="@string/app_name" >
         <activity
             android:name="ScheduledServiceDemoActivity"
