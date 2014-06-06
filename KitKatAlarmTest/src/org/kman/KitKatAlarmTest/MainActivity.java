@@ -175,7 +175,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		f.delete();
 		MyLog.i(TAG, "The log has been reset");
 		onLogRefresh();
-		TouchWiz.sendTotalUnreadCount(this, 0);
 	}
 
 	private ScrollView mLogScroll;
