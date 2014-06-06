@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">setWindow Test</string>
+	<string name="alarms_scheduled">Alarms scheduled!</string>
+
+</resources>
