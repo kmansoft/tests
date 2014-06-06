@@ -14,46 +14,76 @@
 
 package com.commonsware.android.wakesvc;
 
+import java.util.Calendar;
+import java.util.Set;
+
+import org.kman.tests.utils.MyLog;
+
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
-import java.util.Calendar;
+
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 public class PollReceiver extends BroadcastReceiver {
-  @Override
-  public void onReceive(Context ctxt, Intent i) {
-    if (i.getAction() == null) {
-      WakefulIntentService.sendWakefulWork(ctxt, ScheduledService.class);
-    }
-    else {
-      scheduleAlarms(ctxt);
-    }
-  }
 
-  static void scheduleAlarms(Context ctxt) {
-    AlarmManager mgr=
-        (AlarmManager)ctxt.getSystemService(Context.ALARM_SERVICE);
-    Intent i=new Intent(ctxt, PollReceiver.class);
-    PendingIntent pi=PendingIntent.getBroadcast(ctxt, 0, i, 0);
+	private static final String TAG = "PollReceiver";
 
-    Calendar when=Calendar.getInstance();
+	@Override
+	public void onReceive(Context ctxt, Intent i) {
+		MyLog.i(TAG, "onReceive: %s", i);
 
-    when.add(Calendar.MINUTE, 1);
+		if (i != null) {
+			final Bundle extras = i.getExtras();
+			if (extras != null) {
+				final StringBuilder sbExtras = new StringBuilder();
+				final Set<String> keySet = extras.keySet();
+				for (String key : keySet) {
+					if (sbExtras.length() != 0) {
+						sbExtras.append(", ");
+					}
+					sbExtras.append(key).append(" = ").append(extras.get(key));
+					if (key.equals("android.intent.extra.ALARM_TARGET_TIME")) {
+						sbExtras.append(String.format(" %1$tF %1$tT.%1$tL", extras.getLong(key)));
+					}
+				}
+				if (sbExtras.length() == 0) {
+					sbExtras.append("[no extras]");
+				}
+				MyLog.i(TAG, "onReceive extras: %s", sbExtras);
+			}
+		}
 
-    int unroundedMinutes=when.get(Calendar.MINUTE);
-    int mod=unroundedMinutes % 15;
+		if (i.getAction() == null) {
+			PollReceiver.scheduleAlarms(ctxt);
+			WakefulIntentService.sendWakefulWork(ctxt, ScheduledService.class);
+		} else {
+			scheduleAlarms(ctxt);
+		}
+	}
 
-    when.add(Calendar.MINUTE, 15 - mod);
-    when.set(Calendar.SECOND, 0);
-    when.set(Calendar.MILLISECOND, 0);
+	static void scheduleAlarms(Context ctxt) {
+		AlarmManager mgr = (AlarmManager) ctxt.getSystemService(Context.ALARM_SERVICE);
+		Intent i = new Intent(ctxt, PollReceiver.class);
+		PendingIntent pi = PendingIntent.getBroadcast(ctxt, 0, i, 0);
 
-    Log.d("PollReceiver", "Scheduling for " + when.toString());
+		Calendar when = Calendar.getInstance();
 
-    mgr.setWindow(AlarmManager.RTC_WAKEUP, when.getTimeInMillis(),
-                  30000, pi);
-  }
+		when.add(Calendar.MINUTE, 1);
+
+		int unroundedMinutes = when.get(Calendar.MINUTE);
+		int mod = unroundedMinutes % 15;
+
+		when.add(Calendar.MINUTE, 15 - mod);
+		when.set(Calendar.SECOND, 0);
+		when.set(Calendar.MILLISECOND, 0);
+
+		Log.d("PollReceiver", "Scheduling for " + when.toString());
+
+		mgr.setWindow(AlarmManager.RTC_WAKEUP, when.getTimeInMillis(), 30000, pi);
+	}
 }
