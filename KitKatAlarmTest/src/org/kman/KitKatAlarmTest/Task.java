@@ -4,14 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ConnectException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import javax.net.ssl.SSLSocketFactory;
 
-import org.kman.KitKatAlarmTest.net.AddressResolution;
-import org.kman.KitKatAlarmTest.net.SSLSocketFactoryMaker;
 import org.kman.KitKatAlarmTest.net.StreamUtil;
 import org.kman.tests.utils.MyLog;
 
@@ -20,37 +17,23 @@ import android.content.Context;
 public class Task {
 	private static final String TAG = "Task";
 
-	private static final int ITER_COUNT = 10;
-	private static final int ITER_DELAY = 500;
+	private static final int CONNECT_TIMEOUT = 30 * 1000;
+	private static final int DATA_TIMEOUT = 60 * 1000;
 
-	private static final String SERVER = "imap.gmail.com";
+	private static final String SERVER = "imap.yandex.ru";
 	private static final int PORT = 993;
-
-	// private static/* final */boolean VERBOSE_LOG = false;
 
 	public Task(Context context, int startId) {
 		mContext = context;
-		mStartId = startId;
 	}
 
 	public void execute() {
-		// Not sure if this is needed
-
-		// DEBUG
-		// ConnectivityManager connectivityManager = (ConnectivityManager) mContext
-		// .getSystemService(Context.CONNECTIVITY_SERVICE);
-		// final boolean isEnabled = connectivityManager.getBackgroundDataSetting();
-		// if (VERBOSE_LOG) MyLog.i(TAG, "getBackgroundDataSetting = %b", isEnabled);
-
 		// Networking test -- this is what causes alarms to fire too early
 		try {
 			testNetworking();
 		} catch (Exception x) {
 			MyLog.w(TAG, "Error in networking test", x);
 		}
-
-		// Shot in the dark test -- did not cause alarm issue, not sure if needed
-		testShotInTheDark();
 	}
 
 	/**
@@ -95,27 +78,21 @@ public class Task {
 		/*
 		 * Connect at socket level
 		 */
-		final InetAddress[] addrList = AddressResolution.resolveServerName(SERVER);
-		final SSLSocketFactory socketFactory = SSLSocketFactoryMaker.getStrictFactory(mContext);
+		final SSLSocketFactory socketFactory = getSSLSocketFactory();
 
 		final long nTimeStart = System.currentTimeMillis();
-		final int addrListSize = addrList.length;
-		for (int i = 0; i < addrListSize; ++i) {
-			final InetSocketAddress sockAddr = new InetSocketAddress(addrList[i], PORT);
-			MyLog.i(TAG, "Trying: %s", sockAddr);
-			socket = socketFactory.createSocket();
-			try {
-				socket.connect(sockAddr, SSLSocketFactoryMaker.CONNECT_TIMEOUT);
-				MyLog.i(TAG, "Socket connection completed");
-				break; // Success
-			} catch (IOException x) {
-				StreamUtil.closeSocket(socket);
-				socket = null;
 
-				if (i == addrListSize - 1) {
-					throw x;
-				}
-			}
+		final InetSocketAddress sockAddr = new InetSocketAddress(SERVER, PORT);
+		MyLog.i(TAG, "Trying: %s", sockAddr);
+
+		socket = socketFactory.createSocket();
+		try {
+			socket.connect(sockAddr, CONNECT_TIMEOUT);
+			MyLog.i(TAG, "Socket connection completed");
+		} catch (IOException x) {
+			StreamUtil.closeSocket(socket);
+			socket = null;
+			throw x;
 		}
 
 		if (socket == null || !socket.isConnected()) {
@@ -126,7 +103,7 @@ public class Task {
 			/*
 			 * Get streams, this negotiates SSL
 			 */
-			socket.setSoTimeout(SSLSocketFactoryMaker.DATA_TIMEOUT);
+			socket.setSoTimeout(DATA_TIMEOUT);
 			streamInput = socket.getInputStream();
 			streamOutput = socket.getOutputStream();
 
@@ -172,39 +149,17 @@ public class Task {
 		StreamUtil.closeStream(streamOutput);
 	}
 
-	private void testShotInTheDark() {
-		// final Intent intent = new Intent(mContext, MainActivity.class);
-		// intent.setAction(Intent.ACTION_MAIN);
-		// intent.addCategory(Intent.CATEGORY_LAUNCHER);
-		//
-		// intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		// intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-		for (int i = 0; i < ITER_COUNT; ++i) {
-			// DEBUG
-			// final String msg = String.format("Running %d/%d", i + 1, ITER_COUNT);
-			// final KeepAliveService.Info info = new KeepAliveService.Info(msg);
-			//
-			// final PendingIntent pending = PendingIntent.getActivity(mContext, 0, intent,
-			// PendingIntent.FLAG_UPDATE_CURRENT);
-			// KeepAliveService.Facade.start(mContext, info, pending);
-
-			if (i != ITER_COUNT - 1) {
-				try {
-					Thread.sleep(ITER_DELAY);
-				} catch (InterruptedException e) {
-					// Ignore
-				}
+	private SSLSocketFactory getSSLSocketFactory() {
+		synchronized (Task.class) {
+			if (gFactory == null) {
+				gFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
 			}
-
-			// DEBUG WidgetReceiver.sendBroadcast(mContext);
+			return gFactory;
 		}
-
-		// DEBUG TouchWiz.sendTotalUnreadCount(mContext, mStartId);
-
-		// DEBUG KeepAliveService.Facade.stop(mContext);
 	}
 
+	private static SSLSocketFactory gFactory;
+
+	@SuppressWarnings("unused")
 	private Context mContext;
-	private int mStartId;
 }
