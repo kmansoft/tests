@@ -142,8 +142,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 				/*
 				 * Our alarm went off
 				 */
-				// setNextAlarmAlways(context);
-				SetAlarmService.submitSetNextAlarm(context);
+				setNextAlarmAlways(context);
 
 				/*
 				 * Start the service
@@ -154,14 +153,12 @@ public class AlarmReceiver extends BroadcastReceiver {
 				/*
 				 * The user changed the time zone or time, make sure to reschedule the alarm
 				 */
-				// setNextAlarmAlways(context);
-				SetAlarmService.submitSetNextAlarm(context);
+				setNextAlarmAlways(context);
 			} else if (action.equals(Intent.ACTION_BOOT_COMPLETED)) {
 				/*
 				 * Boot completed
 				 */
-				// setNextAlarmAlways(context);
-				SetAlarmService.submitSetNextAlarm(context);
+				setNextAlarmAlways(context);
 			}
 		}
 	}

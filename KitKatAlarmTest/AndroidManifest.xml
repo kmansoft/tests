@@ -50,13 +50,6 @@
             </intent-filter>
         </receiver>
 
-        <!-- Set next alarm service -->
-
-        <service
-            android:name=".SetAlarmService"
-            android:exported="false"
-            android:label="@string/service_setalarm_name" />
-
         <!-- Start sync service -->
 
         <service
