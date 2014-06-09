@@ -32,8 +32,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private static final int MAX_NEWLINE_SEARCH = 1024;
 
 	private static final Pattern TIME_PATTERN = Pattern.compile("\\d{2}:\\d{2}:\\d{2}.\\d{3}");
-	private static final Pattern BAD_PATTERN = Pattern.compile("\\*{5}[^\\*]+\\*{5}");
-	private static final Pattern GOOD_PATTERN = Pattern.compile("\\#{5}[^\\*]+\\#{5}");
+	private static final Pattern BAD_PATTERN = Pattern.compile("\\*{5}[a-z ]+\\*{5}");
+	private static final Pattern GOOD_PATTERN = Pattern.compile("\\#{5}[a-z ]+\\#{5}");
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -133,7 +133,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				final int start = timeMatcher.start();
 				final int end = timeMatcher.end();
 				ssb.setSpan(new TextAppearanceSpan(null, Typeface.BOLD, -1, null, null), start, end,
-						Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
+						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 
 			final Resources res = getResources();
@@ -143,7 +143,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				final int start = badMatcher.start();
 				final int end = badMatcher.end();
 				ssb.setSpan(new TextAppearanceSpan(null, Typeface.BOLD, -1, badColor, null), start, end,
-						Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
+						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 
 			final ColorStateList goodColor = res.getColorStateList(R.color.again_color);
@@ -152,7 +152,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				final int start = goodMatcher.start();
 				final int end = goodMatcher.end();
 				ssb.setSpan(new TextAppearanceSpan(null, Typeface.BOLD, -1, goodColor, null), start, end,
-						Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
+						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 
 			mLogText.setText(ssb);

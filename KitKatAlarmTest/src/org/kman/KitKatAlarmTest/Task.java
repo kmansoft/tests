@@ -20,8 +20,8 @@ public class Task {
 	private static final int CONNECT_TIMEOUT = 30 * 1000;
 	private static final int DATA_TIMEOUT = 60 * 1000;
 
-	private static final String SERVER = "imap.yandex.ru";
-	private static final int PORT = 993;
+	private static final String SERVER = "www.aqua-mail.com";
+	private static final int PORT = 443;
 
 	public Task(Context context, int startId) {
 		mContext = context;
@@ -112,11 +112,6 @@ public class Task {
 			MyLog.i(TAG, "Connection to %s:%d completed: %s, time = %.2f sec", SERVER, PORT,
 					socket.getRemoteSocketAddress(), nTimeConnect / 1000.0f);
 
-			int nSendBufSize = socket.getSendBufferSize();
-			int nRecvBufSize = socket.getReceiveBufferSize();
-
-			MyLog.i(TAG, "Buffer sizes: %d send, %d receive", nSendBufSize, nRecvBufSize);
-
 		} catch (RuntimeException x) {
 			StreamUtil.closeSocket(socket);
 			StreamUtil.closeStream(streamInput);
@@ -130,6 +125,12 @@ public class Task {
 		}
 
 		try {
+			/*
+			 * Write something
+			 */
+			final byte[] w = "A bad http command\r\n".getBytes();
+			streamOutput.write(w);
+
 			/*
 			 * Read something
 			 */

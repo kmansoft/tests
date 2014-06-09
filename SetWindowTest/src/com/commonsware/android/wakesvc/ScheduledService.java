@@ -37,8 +37,8 @@ public class ScheduledService extends WakefulIntentService {
 	private static final int CONNECT_TIMEOUT = 30 * 1000;
 	private static final int DATA_TIMEOUT = 60 * 1000;
 
-	private static final String SERVER = "imap.gmail.com";
-	private static final int PORT = 993;
+	private static final String SERVER = "www.aqua-mail.com";
+	private static final int PORT = 443;
 
 	public ScheduledService() {
 		super("ScheduledService");
@@ -116,6 +116,12 @@ public class ScheduledService extends WakefulIntentService {
 		}
 
 		try {
+			/*
+			 * Write something
+			 */
+			final byte[] w = "A bad http command\r\n".getBytes();
+			streamOutput.write(w);
+
 			/*
 			 * Read something
 			 */
