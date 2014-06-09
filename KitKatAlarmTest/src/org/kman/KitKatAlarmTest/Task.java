@@ -20,8 +20,8 @@ public class Task {
 	private static final int CONNECT_TIMEOUT = 30 * 1000;
 	private static final int DATA_TIMEOUT = 60 * 1000;
 
-	private static final String SERVER = "www.aqua-mail.com";
-	private static final int PORT = 443;
+	private static final String SERVER = "imap.gmail.com";
+	private static final int PORT = 993;
 
 	public Task(Context context, int startId) {
 		mContext = context;
@@ -128,8 +128,8 @@ public class Task {
 			/*
 			 * Write something
 			 */
-			final byte[] w = "A bad http command\r\n".getBytes();
-			streamOutput.write(w);
+			// final byte[] w = "A bad http command\r\n".getBytes();
+			// streamOutput.write(w);
 
 			/*
 			 * Read something

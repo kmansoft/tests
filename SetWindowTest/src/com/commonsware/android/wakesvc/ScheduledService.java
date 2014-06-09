@@ -37,8 +37,8 @@ public class ScheduledService extends WakefulIntentService {
 	private static final int CONNECT_TIMEOUT = 30 * 1000;
 	private static final int DATA_TIMEOUT = 60 * 1000;
 
-	private static final String SERVER = "www.aqua-mail.com";
-	private static final int PORT = 443;
+	private static final String SERVER = "imap.gmail.com";
+	private static final int PORT = 993;
 
 	public ScheduledService() {
 		super("ScheduledService");
@@ -56,6 +56,7 @@ public class ScheduledService extends WakefulIntentService {
 
 	}
 
+	@SuppressWarnings("deprecation")
 	private void testNetworking() throws IOException {
 		Socket socket = null;
 		InputStream streamInput = null;
@@ -74,7 +75,6 @@ public class ScheduledService extends WakefulIntentService {
 		socket = socketFactory.createSocket();
 		try {
 			socket.connect(sockAddr, CONNECT_TIMEOUT);
-			MyLog.i(TAG, "Socket connection completed");
 		} catch (IOException x) {
 			StreamUtil.closeSocket(socket);
 			socket = null;
@@ -97,12 +97,6 @@ public class ScheduledService extends WakefulIntentService {
 
 			MyLog.i(TAG, "Connection to %s:%d completed: %s, time = %.2f sec", SERVER, PORT,
 					socket.getRemoteSocketAddress(), nTimeConnect / 1000.0f);
-
-			int nSendBufSize = socket.getSendBufferSize();
-			int nRecvBufSize = socket.getReceiveBufferSize();
-
-			MyLog.i(TAG, "Buffer sizes: %d send, %d receive", nSendBufSize, nRecvBufSize);
-
 		} catch (RuntimeException x) {
 			StreamUtil.closeSocket(socket);
 			StreamUtil.closeStream(streamInput);
@@ -119,8 +113,8 @@ public class ScheduledService extends WakefulIntentService {
 			/*
 			 * Write something
 			 */
-			final byte[] w = "A bad http command\r\n".getBytes();
-			streamOutput.write(w);
+			// final byte[] w = "A bad http command\r\n".getBytes();
+			// streamOutput.write(w);
 
 			/*
 			 * Read something
