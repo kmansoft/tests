@@ -240,9 +240,6 @@ public class AlarmReceiver extends BroadcastReceiver {
 			MyLog.i(TAG, "Set next alarm: setExact for %1$tF %1$tT for %2$s", scheduled, pendingIntent);
 		}
 
-		am.setWindow(AlarmManager.RTC_WAKEUP, scheduled, ALARM_WINDOW, pendingIntent);
-		MyLog.i(TAG, "Set next alarm: setWindow for %1$tF %1$tT for %2$s", scheduled, pendingIntent);
-
 		SharedPreferences sharedPrefs = context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPrefs.edit();
 		editor.putLong(SHARED_PREFS_NEXT_TIME_KEY, scheduled);
