@@ -10,6 +10,9 @@ The issue happens on both of them. No matter if I use setWindow or setExact. It 
 
 The thing that triggers the bug is connecting to a network server. Leaving a connection open between the alarms is not neessary for the issue to occur.
 
+It seems that imap.gmail.com/SSL/993 is special, or maybe all IMAP severs are. Connecting to a web server instead still
+results in early alarms, but they're only early by 30-40 seconds. Or maybe this was just a coincidence.
+
 The relevant code is in [Task.java](KitKatAlarmTest/src/org/kman/KitKatAlarmTest/Task.java)
 
 It builds with Eclipse and Gradle.
@@ -26,3 +29,19 @@ what time it was scheduled.
 In my real app, I'm seeing same issue on both Samsungs, and do not see it on a Nexus 5 or an HTC One Max, both
 also with 4.4.2.
 
+### KitKatAlarmTest
+**Another test for same issue, based on code from Mark Murphy (@commonsware)
+
+- Originally written by Mark Murphy
+- Structured around WakefulIntentService by Mark Murphy
+- TargetApi as well as MinApi are both 19 (Android 4.4), as picked by Mark Murphy
+
+I made the following changes:
+
+- Moved setting the next alarm into onReceive
+- Added file based logging
+- Added code in ScheduledService#doWakefulWork to establish a network connection and disconnect
+- Added the necessary permissions ("internet", "write to storage")
+
+As the code stands now, the alarms can come early by 1-2-3 minutes on same two Samsung devices.
+[A sample of the log, for both](SetWindowTest/log-com.commonsware.android.wakesvc-excerpts.txt)
