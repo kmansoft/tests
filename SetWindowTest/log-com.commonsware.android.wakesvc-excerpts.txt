@@ -1,0 +1,38 @@
+Connecting to imap.gmail.com
+
+Galaxy S4:
+
+2014.06.09 18:15:00.650 +0400	PollReceiver	Scheduling for java.util.GregorianCalendar[time=?,areFieldsSet=false,lenient=true,zone=Europe/Moscow,firstDayOfWeek=1,minimalDaysInFirstWeek=1,ERA=1,YEAR=2014,MONTH=5,WEEK_OF_YEAR=24,WEEK_OF_MONTH=2,DAY_OF_MONTH=9,DAY_OF_YEAR=160,DAY_OF_WEEK=2,DAY_OF_WEEK_IN_MONTH=2,AM_PM=1,HOUR=6,HOUR_OF_DAY=18,MINUTE=30,SECOND=0,MILLISECOND=0,ZONE_OFFSET=14400000,DST_OFFSET=0]
+2014.06.09 18:26:59.673 +0400	PollReceiver	onReceive: Intent { flg=0x14 cmp=com.commonsware.android.wakesvc/.PollReceiver (has extras) }
+2014.06.09 18:26:59.731 +0400	PollReceiver	onReceive extras: android.intent.extra.ALARM_TARGET_TIME = 1402324018297 2014-06-09 18:26:58.297, android.intent.extra.ALARM_COUNT = 1
+
+
+2014.06.09 20:45:00.767 +0400	PollReceiver	Scheduling for java.util.GregorianCalendar[time=?,areFieldsSet=false,lenient=true,zone=Europe/Moscow,firstDayOfWeek=1,minimalDaysInFirstWeek=1,ERA=1,YEAR=2014,MONTH=5,WEEK_OF_YEAR=24,WEEK_OF_MONTH=2,DAY_OF_MONTH=9,DAY_OF_YEAR=160,DAY_OF_WEEK=2,DAY_OF_WEEK_IN_MONTH=2,AM_PM=1,HOUR=9,HOUR_OF_DAY=21,MINUTE=0,SECOND=0,MILLISECOND=0,ZONE_OFFSET=14400000,DST_OFFSET=0]
+2014.06.09 20:56:58.524 +0400	PollReceiver	onReceive: Intent { flg=0x14 cmp=com.commonsware.android.wakesvc/.PollReceiver (has extras) }
+2014.06.09 20:56:58.532 +0400	PollReceiver	onReceive extras: android.intent.extra.ALARM_TARGET_TIME = 1402333018296 2014-06-09 20:56:58.296, android.intent.extra.ALARM_COUNT = 1
+
+
+2014.06.09 22:00:01.404 +0400	PollReceiver	Scheduling for java.util.GregorianCalendar[time=?,areFieldsSet=false,lenient=true,zone=Europe/Moscow,firstDayOfWeek=1,minimalDaysInFirstWeek=1,ERA=1,YEAR=2014,MONTH=5,WEEK_OF_YEAR=24,WEEK_OF_MONTH=2,DAY_OF_MONTH=9,DAY_OF_YEAR=160,DAY_OF_WEEK=2,DAY_OF_WEEK_IN_MONTH=2,AM_PM=1,HOUR=10,HOUR_OF_DAY=22,MINUTE=15,SECOND=0,MILLISECOND=0,ZONE_OFFSET=14400000,DST_OFFSET=0]
+2014.06.09 22:11:58.533 +0400	PollReceiver	onReceive: Intent { flg=0x14 cmp=com.commonsware.android.wakesvc/.PollReceiver (has extras) }
+2014.06.09 22:11:58.535 +0400	PollReceiver	onReceive extras: android.intent.extra.ALARM_TARGET_TIME = 1402337518296 2014-06-09 22:11:58.296, android.intent.extra.ALARM_COUNT = 1
+
+2014.06.09 22:30:00.470 +0400	PollReceiver	Scheduling for java.util.GregorianCalendar[time=?,areFieldsSet=false,lenient=true,zone=Europe/Moscow,firstDayOfWeek=1,minimalDaysInFirstWeek=1,ERA=1,YEAR=2014,MONTH=5,WEEK_OF_YEAR=24,WEEK_OF_MONTH=2,DAY_OF_MONTH=9,DAY_OF_YEAR=160,DAY_OF_WEEK=2,DAY_OF_WEEK_IN_MONTH=2,AM_PM=1,HOUR=10,HOUR_OF_DAY=22,MINUTE=45,SECOND=0,MILLISECOND=0,ZONE_OFFSET=14400000,DST_OFFSET=0]
+2014.06.09 22:41:58.834 +0400	PollReceiver	onReceive: Intent { flg=0x14 cmp=com.commonsware.android.wakesvc/.PollReceiver (has extras) }
+2014.06.09 22:41:58.837 +0400	PollReceiver	onReceive extras: android.intent.extra.ALARM_TARGET_TIME = 1402339318296 2014-06-09 22:41:58.296, android.intent.extra.ALARM_COUNT = 1
+
+Galaxy Note 3:
+
+2014.06.09 20:45:00.584 +0400	PollReceiver	Scheduling for java.util.GregorianCalendar[time=?,areFieldsSet=false,lenient=true,zone=Europe/Moscow,firstDayOfWeek=2,minimalDaysInFirstWeek=1,ERA=1,YEAR=2014,MONTH=5,WEEK_OF_YEAR=24,WEEK_OF_MONTH=3,DAY_OF_MONTH=9,DAY_OF_YEAR=160,DAY_OF_WEEK=2,DAY_OF_WEEK_IN_MONTH=2,AM_PM=1,HOUR=9,HOUR_OF_DAY=21,MINUTE=0,SECOND=0,MILLISECOND=0,ZONE_OFFSET=14400000,DST_OFFSET=0]
+2014.06.09 20:57:42.425 +0400	PollReceiver	onReceive: Intent { flg=0x14 cmp=com.commonsware.android.wakesvc/.PollReceiver (has extras) }
+2014.06.09 20:57:42.431 +0400	PollReceiver	onReceive extras: android.intent.extra.ALARM_TARGET_TIME = 1402333061241 2014-06-09 20:57:41.241, android.intent.extra.ALARM_COUNT = 1
+
+
+2014.06.09 22:00:01.584 +0400	PollReceiver	Scheduling for java.util.GregorianCalendar[time=?,areFieldsSet=false,lenient=true,zone=Europe/Moscow,firstDayOfWeek=2,minimalDaysInFirstWeek=1,ERA=1,YEAR=2014,MONTH=5,WEEK_OF_YEAR=24,WEEK_OF_MONTH=3,DAY_OF_MONTH=9,DAY_OF_YEAR=160,DAY_OF_WEEK=2,DAY_OF_WEEK_IN_MONTH=2,AM_PM=1,HOUR=10,HOUR_OF_DAY=22,MINUTE=15,SECOND=0,MILLISECOND=0,ZONE_OFFSET=14400000,DST_OFFSET=0]
+2014.06.09 22:12:42.707 +0400	PollReceiver	onReceive: Intent { flg=0x14 cmp=com.commonsware.android.wakesvc/.PollReceiver (has extras) }
+2014.06.09 22:12:42.719 +0400	PollReceiver	onReceive extras: android.intent.extra.ALARM_TARGET_TIME = 1402337561241 2014-06-09 22:12:41.241, android.intent.extra.ALARM_COUNT = 1
+
+
+2014.06.09 22:30:00.541 +0400	PollReceiver	Scheduling for java.util.GregorianCalendar[time=?,areFieldsSet=false,lenient=true,zone=Europe/Moscow,firstDayOfWeek=2,minimalDaysInFirstWeek=1,ERA=1,YEAR=2014,MONTH=5,WEEK_OF_YEAR=24,WEEK_OF_MONTH=3,DAY_OF_MONTH=9,DAY_OF_YEAR=160,DAY_OF_WEEK=2,DAY_OF_WEEK_IN_MONTH=2,AM_PM=1,HOUR=10,HOUR_OF_DAY=22,MINUTE=45,SECOND=0,MILLISECOND=0,ZONE_OFFSET=14400000,DST_OFFSET=0]
+2014.06.09 22:42:44.818 +0400	PollReceiver	onReceive: Intent { flg=0x14 cmp=com.commonsware.android.wakesvc/.PollReceiver (has extras) }
+2014.06.09 22:42:44.830 +0400	PollReceiver	onReceive extras: android.intent.extra.ALARM_TARGET_TIME = 1402339363979 2014-06-09 22:42:43.979, android.intent.extra.ALARM_COUNT = 1
+
