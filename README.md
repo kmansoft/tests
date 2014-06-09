@@ -29,8 +29,8 @@ what time it was scheduled.
 In my real app, I'm seeing same issue on both Samsungs, and do not see it on a Nexus 5 or an HTC One Max, both
 also with 4.4.2.
 
-### KitKatAlarmTest
-**Another test for same issue, based on code from Mark Murphy (@commonsware)
+### SetWindowTest
+**Another test for same issue, based on code from Mark Murphy (@commonsware)**
 
 - Originally written by Mark Murphy
 - Structured around WakefulIntentService by Mark Murphy
@@ -44,4 +44,5 @@ I made the following changes:
 - Added the necessary permissions ("internet", "write to storage")
 
 As the code stands now, the alarms can come early by 1-2-3 minutes on same two Samsung devices.
-[A sample of the log, for both](SetWindowTest/log-com.commonsware.android.wakesvc-excerpts.txt)
+
+[A sample of the log, from both devices](SetWindowTest/log-com.commonsware.android.wakesvc-excerpts.txt)
