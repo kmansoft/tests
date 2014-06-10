@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory />
+
+    <PreferenceScreen
+        android:key="account_settings"
+        android:summary="Change account settings"
+        android:title="Account settings" >
+        <intent android:action="org.kman.KitKatAlarmTest.ACCOUNT_MANAGER_ENTRY" />
+    </PreferenceScreen>
+
+</PreferenceScreen>

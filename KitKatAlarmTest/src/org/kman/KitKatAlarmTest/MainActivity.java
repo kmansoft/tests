@@ -6,9 +6,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.kman.KitKatAlarmTest.net.StreamUtil;
+import org.kman.KitKatAlarmTest.sync.SyncContentProvider;
 import org.kman.tests.utils.MyLog;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -27,6 +31,8 @@ import android.widget.TextView;
 public class MainActivity extends Activity implements View.OnClickListener {
 
 	private static final String TAG = "MainActivity";
+
+	private static final String ACCOUNT_TYPE = "org.kman.KitKatAlarmTest";
 
 	private static final int MAX_LOG_TEXT = 30 * 1024;
 	private static final int MAX_NEWLINE_SEARCH = 1024;
@@ -54,7 +60,19 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 		AlarmReceiver.setNextAlarmWithCheck(this);
 
+		AccountManager accountManager = (AccountManager) getSystemService(ACCOUNT_SERVICE);
+		addAccount(accountManager, "test_account_1");
+		addAccount(accountManager, "test_account_2");
+
 		onLogRefresh();
+	}
+
+	private void addAccount(AccountManager accountManager, String accountName) {
+		Account newAccount = new Account(accountName, ACCOUNT_TYPE);
+		boolean newAccountAdded = accountManager.addAccountExplicitly(newAccount, null, null);
+
+		ContentResolver.setIsSyncable(newAccount, SyncContentProvider.AUTHORITY, 1);
+		ContentResolver.setSyncAutomatically(newAccount, SyncContentProvider.AUTHORITY, true);
 	}
 
 	@Override

@@ -40,7 +40,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 		SET_WINDOW, SET_EXACT, SET_DEFAULT
 	};
 
-	private static final AlarmMethod ALARM_METHOD = AlarmMethod.SET_DEFAULT;
+	private static final AlarmMethod ALARM_METHOD = AlarmMethod.SET_WINDOW;
 
 	/**
 	 * Inexact alarm window
