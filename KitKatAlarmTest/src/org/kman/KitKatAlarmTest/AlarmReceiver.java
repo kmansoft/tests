@@ -45,7 +45,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 	/**
 	 * Inexact alarm window
 	 */
-	private static final long ALARM_WINDOW = 5 * 1000;
+	private static final long ALARM_WINDOW = 65 * 1000;
 
 	/**
 	 * Alarm setting methods
@@ -178,7 +178,8 @@ public class AlarmReceiver extends BroadcastReceiver {
 		switch (ALARM_METHOD) {
 		case SET_WINDOW:
 			am.setWindow(AlarmManager.RTC_WAKEUP, scheduled, ALARM_WINDOW, pendingIntent);
-			MyLog.i(TAG, "Set next alarm: setWindow for %1$tF %1$tT for %2$s", scheduled, pendingIntent);
+			MyLog.i(TAG, "Set next alarm: setWindow for %1$tF %1$tT (%2$d) for %3$s", scheduled, ALARM_WINDOW,
+					pendingIntent);
 			break;
 
 		case SET_EXACT:
