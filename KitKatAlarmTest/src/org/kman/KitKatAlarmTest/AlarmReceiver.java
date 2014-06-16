@@ -40,7 +40,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 		SET_WINDOW, SET_EXACT, SET_DEFAULT
 	};
 
-	private static final AlarmMethod ALARM_METHOD = AlarmMethod.SET_WINDOW;
+	private static final AlarmMethod ALARM_METHOD = AlarmMethod.SET_DEFAULT;
 
 	/**
 	 * Inexact alarm window
@@ -91,12 +91,14 @@ public class AlarmReceiver extends BroadcastReceiver {
 					/*
 					 * This is our alarm action
 					 */
-					if (targetTime != 0 && now < targetTime - 1000) {
-						MyLog.i(TAG, "onReceive ***** fired too early *****");
-					}
-
-					if (targetTime != 0 && now >= targetTime - 1000) {
-						MyLog.i(TAG, "onReceive ##### fired on or after #####");
+					if (targetTime != 0) {
+						if (now < targetTime - 1000) {
+							MyLog.i(TAG, "onReceive ***** fired too early *****");
+						} else if (now >= targetTime + 1000 * 60 * 5) {
+							MyLog.i(TAG, "onReceive ***** fired too late *****");
+						} else {
+							MyLog.i(TAG, "onReceive ##### fired on or after #####");
+						}
 					}
 				}
 			}
