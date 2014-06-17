@@ -31,7 +31,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 	/**
 	 * Alarm period
 	 */
-	private static final long ALARM_PERIOD = 15 * 60 * 1000;
+	private static final long ALARM_PERIOD = 30 * 60 * 1000;
 
 	/**
 	 * Alarm method
@@ -40,19 +40,12 @@ public class AlarmReceiver extends BroadcastReceiver {
 		SET_WINDOW, SET_EXACT, SET_DEFAULT
 	};
 
-	private static final AlarmMethod ALARM_METHOD = AlarmMethod.SET_DEFAULT;
+	private static final AlarmMethod ALARM_METHOD = AlarmMethod.SET_WINDOW;
 
 	/**
 	 * Inexact alarm window
 	 */
 	private static final long ALARM_WINDOW = 65 * 1000;
-
-	/**
-	 * Alarm setting methods
-	 */
-	public static final int ALARM_METHOD_SETWINDOW = 0;
-	public static final int ALARM_METHOD_SETEXACT = 1;
-	public static final int ALARM_METHOD_SETALARM = 2;
 
 	// DEBUG
 	public static final String EXTRA_SET_AT = "setAt";
@@ -160,7 +153,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
 	private static void setNextAlarm(Context context, long currentTime, SharedPreferences prefs) {
 
-		final long scheduled = computeNextAlarmTime(currentTime);
+		final long scheduled = computeNextAlarmTime(currentTime, ALARM_PERIOD);
 		final int versionCodeNew = PackageUtils.getVersionCode(context);
 
 		final Intent intent = new Intent(AlarmReceiver.ACTION_ALARM_TICK);
@@ -203,10 +196,24 @@ public class AlarmReceiver extends BroadcastReceiver {
 		editor.commit();
 	}
 
-	private static long computeNextAlarmTime(long currentTime) {
+	private static long computeNextAlarmTime(long currentTime, long periodDuration) {
+
+		if (isKitKatSamsung()) {
+			long adjustment = 0;
+			if (periodDuration >= 60 * 60 * 1000) {
+				currentTime += 10 * 60 * 1000;
+			} else if (periodDuration >= 10 * 60 * 1000) {
+				adjustment = periodDuration / 3;
+			}
+			if (adjustment != 0) {
+				MyLog.i(TAG, "Adjusting for Samsung by %d ms", adjustment);
+				currentTime += adjustment;
+			}
+		}
+
 		final long referenceTime = computeReferenceTime(currentTime);
-		final int periods = (int) ((currentTime - referenceTime) / ALARM_PERIOD);
-		final long next = referenceTime + periods * ALARM_PERIOD + ALARM_PERIOD;
+		final int periods = (int) ((currentTime - referenceTime) / periodDuration);
+		final long next = referenceTime + periods * ALARM_PERIOD + periodDuration;
 		return next;
 	}
 
@@ -224,5 +231,10 @@ public class AlarmReceiver extends BroadcastReceiver {
 		}
 
 		return referenceTime;
+	}
+
+	private static boolean isKitKatSamsung() {
+		return Build.VERSION.SDK_INT == 19 && Build.MANUFACTURER != null
+				&& Build.MANUFACTURER.equalsIgnoreCase("samsung");
 	}
 }
