@@ -1,0 +1,8 @@
+<resources>
+
+    <string name="app_name">MobileRadioTest</string>
+    <string name="alarm_receiver_name">Alarm receiver</string>
+    <string name="service_setalarm_name">Set alarm service</string>
+    <string name="service_startsync_name">Start sync service</string>
+
+</resources>

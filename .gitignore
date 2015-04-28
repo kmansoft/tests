@@ -24,6 +24,7 @@ proguard/
 
 # More eclipse
 .metadata/
+.recommenders/
 
 # Mercurial
 .hg/
