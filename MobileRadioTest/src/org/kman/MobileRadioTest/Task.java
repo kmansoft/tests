@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 
 import javax.net.ssl.SSLSocketFactory;
 
-import org.kman.MobielRadioTest.net.StreamUtil;
+import org.kman.MobileRadioTest.net.StreamUtil;
 import org.kman.MobileRadioTest.util.MyLog;
 
 import android.content.Context;

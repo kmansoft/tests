@@ -5,7 +5,7 @@ import java.io.RandomAccessFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.kman.MobielRadioTest.net.StreamUtil;
+import org.kman.MobileRadioTest.net.StreamUtil;
 import org.kman.MobileRadioTest.util.MyLog;
 
 import android.app.Activity;

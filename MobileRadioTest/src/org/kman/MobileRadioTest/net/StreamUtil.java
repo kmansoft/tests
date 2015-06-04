@@ -1,4 +1,4 @@
-package org.kman.MobielRadioTest.net;
+package org.kman.MobileRadioTest.net;
 
 import java.io.IOException;
 import java.io.InputStream;
