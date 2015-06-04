@@ -11,6 +11,7 @@ import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CountDownLatch;
 
 import javax.net.ssl.SSLSocketFactory;
 
@@ -19,7 +20,7 @@ import org.kman.MobileRadioTest.util.MyLog;
 
 import android.content.Context;
 
-public class Task {
+public class Task implements Runnable {
 	private static final String TAG = "Task";
 
 	private static final int CONNECT_TIMEOUT = 30 * 1000;
@@ -28,15 +29,29 @@ public class Task {
 	private static final String SERVER = "imap.gmail.com";
 	private static final int PORT = 993;
 
-	public Task(Context context, int startId) {
-		mContext = context;
+	public Task(Context context, CountDownLatch latch, int lockFlag) {
+		mContext = context.getApplicationContext();
+		mLatch = latch;
+		mLockManager = LockManager.get(mContext);
+		mLockFlag = lockFlag;
 	}
 
-	public void execute() {
+	@Override
+	public void run() {
+		try {
+			mLatch.await();
+		} catch (Exception x) {
+			MyLog.w(TAG, "Error in networking test", x);
+			return;
+		}
+
+		mLockManager.acquireSpecialFlag(mLockFlag);
 		try {
 			testNetworking();
 		} catch (Exception x) {
 			MyLog.w(TAG, "Error in networking test", x);
+		} finally {
+			mLockManager.releaseSpecialFlag(mLockFlag);
 		}
 	}
 
@@ -47,11 +62,6 @@ public class Task {
 
 		try {
 			/*
-			 * Log that we're starting up
-			 */
-			MyLog.i(TAG, "testNetworking begin");
-
-			/*
 			 * Connect at socket level
 			 */
 			final SSLSocketFactory socketFactory = getSSLSocketFactory();
@@ -59,12 +69,11 @@ public class Task {
 			final long nTimeStart = System.currentTimeMillis();
 
 			final InetSocketAddress sockAddr = new InetSocketAddress(SERVER, PORT);
-			MyLog.i(TAG, "Trying: %s", sockAddr);
+			MyLog.i(TAG, "Connecting to: %s", sockAddr);
 
 			socket = socketFactory.createSocket();
 			try {
 				socket.connect(sockAddr, CONNECT_TIMEOUT);
-				MyLog.i(TAG, "Socket connection completed");
 			} catch (IOException x) {
 				StreamUtil.closeSocket(socket);
 				socket = null;
@@ -160,6 +169,8 @@ public class Task {
 
 	private static SSLSocketFactory gFactory;
 
-	@SuppressWarnings("unused")
 	private Context mContext;
+	private CountDownLatch mLatch;
+	private LockManager mLockManager;
+	private int mLockFlag;
 }

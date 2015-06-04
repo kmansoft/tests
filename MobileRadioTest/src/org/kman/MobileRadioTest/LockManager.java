@@ -21,7 +21,7 @@ public class LockManager {
 	}
 
 	public static final int LOCK_FLAG_STARTING_SYNC = 0x0001;
-	public static final int LOCK_FLAG_RUNNING_TASK = 0x0002;
+	public static final int LOCK_FLAG_RUNNING_TASK = 0x0100;
 
 	public void acquireSpecialFlag(int flag) {
 		synchronized (this) {

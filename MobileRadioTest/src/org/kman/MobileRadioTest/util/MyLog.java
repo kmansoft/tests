@@ -44,7 +44,7 @@ public abstract class MyLog {
 	 * Current configuration settings
 	 */
 	private static boolean gEnabled = false;
-	private static int gDest = DEST_FILE;
+	private static int gDest = DEST_LOGCAT;
 	private static boolean gLogDbData = false;
 
 	private static boolean gAutomaticFlush = false;

@@ -41,7 +41,7 @@ public abstract class MyLog {
 	/**
 	 * Current configuration settings
 	 */
-	private static boolean gEnabled = false;
+	private static boolean gEnabled = true;
 	private static int gDest = DEST_FILE;
 	private static boolean gLogDbData = false;
 

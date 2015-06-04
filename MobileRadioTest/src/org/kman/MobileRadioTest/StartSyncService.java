@@ -1,5 +1,8 @@
 package org.kman.MobileRadioTest;
 
+import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
+
 import org.kman.MobileRadioTest.util.MyLog;
 
 import android.app.Service;
@@ -13,6 +16,11 @@ public class StartSyncService extends Service {
 	 * Log tag
 	 */
 	private static final String TAG = "StartSyncService";
+
+	/**
+	 * Thread count
+	 */
+	private static final int THREAD_COUNT = 5;
 
 	/**
 	 * Action to sync accounts in the background, applying all the usual logic
@@ -55,9 +63,14 @@ public class StartSyncService extends Service {
 					/*
 					 * Sync request
 					 */
-					final TaskExecutor executor = TaskExecutor.get(this);
-					final Task task = new Task(this, startId);
-					executor.submit(task);
+					final CountDownLatch latch = new CountDownLatch(1);
+					for (int i = 0; i < THREAD_COUNT; ++i) {
+						final Task task = new Task(this, latch, LockManager.LOCK_FLAG_RUNNING_TASK << i);
+						final Thread thread = new Thread(task);
+						thread.setName(String.format(Locale.US, "Task-%d", i));
+						thread.start();
+					}
+					latch.countDown();
 
 					final LockManager lm = LockManager.get(this);
 					lm.releaseSpecialFlag(LockManager.LOCK_FLAG_STARTING_SYNC);
