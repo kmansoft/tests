@@ -29,6 +29,10 @@ public class Task implements Runnable {
 	private static final String SERVER = "imap.gmail.com";
 	private static final int PORT = 993;
 
+	private static final int SLEEP_DURATION = 3;
+
+	private static/* final */boolean TEST_WITH_NETWORKING = true;
+
 	public Task(Context context, CountDownLatch latch, int lockFlag) {
 		mContext = context.getApplicationContext();
 		mLatch = latch;
@@ -47,12 +51,26 @@ public class Task implements Runnable {
 
 		mLockManager.acquireSpecialFlag(mLockFlag);
 		try {
-			testNetworking();
+			if (TEST_WITH_NETWORKING) {
+				testNetworking();
+			} else {
+				testNoNetworking();
+			}
 		} catch (Exception x) {
 			MyLog.w(TAG, "Error in networking test", x);
 		} finally {
 			mLockManager.releaseSpecialFlag(mLockFlag);
 		}
+	}
+
+	private void testNoNetworking() {
+		MyLog.i(TAG, "No networking, sleeping for %d sec", SLEEP_DURATION);
+		try {
+			Thread.sleep(SLEEP_DURATION * 1000);
+		} catch (InterruptedException x) {
+
+		}
+		MyLog.i(TAG, "Done sleeping");
 	}
 
 	private void testNetworking() throws IOException {
