@@ -32,6 +32,7 @@ public class Task implements Runnable {
 	private static final int SLEEP_DURATION = 3;
 
 	private static/* final */boolean TEST_WITH_NETWORKING = true;
+	private static/* final */boolean LEAVE_CONNECTIONS_OPEN = true;
 
 	public Task(Context context, CountDownLatch latch, int lockFlag) {
 		mContext = context.getApplicationContext();
@@ -56,6 +57,14 @@ public class Task implements Runnable {
 			} else {
 				testNoNetworking();
 			}
+
+			MyLog.i(TAG, "Sleeping for %d sec", SLEEP_DURATION);
+			try {
+				Thread.sleep(SLEEP_DURATION * 1000);
+			} catch (InterruptedException x) {
+			}
+			MyLog.i(TAG, "Done sleeping");
+
 		} catch (Exception x) {
 			MyLog.w(TAG, "Error in networking test", x);
 		} finally {
@@ -64,13 +73,7 @@ public class Task implements Runnable {
 	}
 
 	private void testNoNetworking() {
-		MyLog.i(TAG, "No networking, sleeping for %d sec", SLEEP_DURATION);
-		try {
-			Thread.sleep(SLEEP_DURATION * 1000);
-		} catch (InterruptedException x) {
-
-		}
-		MyLog.i(TAG, "Done sleeping");
+		MyLog.i(TAG, "No networking");
 	}
 
 	private void testNetworking() throws IOException {
@@ -148,9 +151,13 @@ public class Task implements Runnable {
 			}
 
 		} finally {
-			StreamUtil.closeSocket(socket);
-			StreamUtil.closeStream(streamInput);
-			StreamUtil.closeStream(streamOutput);
+			if (LEAVE_CONNECTIONS_OPEN) {
+				MyLog.i(TAG, "Leaving socket %s open", socket);
+			} else {
+				StreamUtil.closeSocket(socket);
+				StreamUtil.closeStream(streamInput);
+				StreamUtil.closeStream(streamOutput);
+			}
 
 			/*
 			 * Log that we're done
