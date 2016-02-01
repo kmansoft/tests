@@ -116,11 +116,10 @@ public class MainActivity extends Activity {
 
 	private void onTestDone(TestTask task, Test[] list) {
 
-		if (mTaskList.remove(task)) {
+		if (mTaskList.remove(task) && !mHasBad) {
 
 			mTextView.setText(null);
 
-			boolean hasBad = false;
 			final StringBuilder sb = new StringBuilder();
 			for (Test test : list) {
 				if (sb.length() != 0) {
@@ -133,13 +132,13 @@ public class MainActivity extends Activity {
 					sb.append("OK");
 				} else {
 					sb.append("BAD: \"").append(test.res).append("\"");
-					hasBad = true;
+					mHasBad = true;
 				}
 			}
 
 			mTextView.setText(sb.toString());
 
-			if (hasBad) {
+			if (mHasBad) {
 				Log.i(TAG, sb.toString());
 			}
 		}
@@ -223,6 +222,7 @@ public class MainActivity extends Activity {
 		private StringBuilder mSbDummy;
 	}
 
+	private boolean mHasBad;
 	private TextView mTextView;
 	private List<TestTask> mTaskList;
 }
