@@ -1,15 +1,23 @@
 package org.kman.test.charsettest;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
+
+	private static final String TAG = "MainActivity";
+
+	private static final int TASK_COUNT = 10;
+	private static final int ITER_COUNT = 10000;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -23,14 +31,15 @@ public class MainActivity extends Activity {
 
 		final String q = Charsets.NIO_CHARSET_UTF_8.displayName();
 		mTextView.setText(q);
+
+		mTaskList = new ArrayList<TestTask>();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 
-		if (mTask == null) {
-
+		for (int i = 0; i < TASK_COUNT; ++i) {
 			final Test[] list = {
 					new Test(new byte[] { -48, -94, -48, -75, -47, -127, -47, -126, -48, -66, -48, -78, -48, -66, -48,
 							-75, 32, -47, -127, -48, -66, -48, -66, -48, -79, -47, -119, -48, -75, -48, -67, -48, -72,
@@ -60,8 +69,10 @@ public class MainActivity extends Activity {
 
 			};
 
-			mTask = new TestTask(this, list);
-			mTask.execute((Void[]) null);
+			final TestTask task = new TestTask(this, list);
+			mTaskList.add(task);
+
+			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ((Void[]) null));
 		}
 	}
 
@@ -88,17 +99,19 @@ public class MainActivity extends Activity {
 	protected void onDestroy() {
 		super.onDestroy();
 
-		if (mTask != null) {
-			mTask.setActivity(null);
+		for (TestTask task : mTaskList) {
+			task.setActivity(null);
 		}
+		mTaskList.clear();
 	}
 
 	private void onTestDone(TestTask task, Test[] list) {
-		if (mTask == task) {
-			mTask = null;
+
+		if (mTaskList.remove(task)) {
 
 			mTextView.setText(null);
 
+			boolean hasBad = false;
 			final StringBuilder sb = new StringBuilder();
 			for (Test test : list) {
 				if (sb.length() != 0) {
@@ -111,10 +124,15 @@ public class MainActivity extends Activity {
 					sb.append("OK");
 				} else {
 					sb.append("BAD: \"").append(test.res).append("\"");
+					hasBad = true;
 				}
 			}
 
 			mTextView.setText(sb.toString());
+
+			if (hasBad) {
+				Log.i(TAG, sb.toString());
+			}
 		}
 	}
 
@@ -145,17 +163,25 @@ public class MainActivity extends Activity {
 		@Override
 		protected Void doInBackground(Void... params) {
 
-			for (Test test : mList) {
-				if (test.cs == null) {
-					test.res = new String(test.b, Charsets.NIO_CHARSET_UTF_8);
-				} else {
-					try {
-						test.res = new String(test.b, test.cs);
-					} catch (UnsupportedEncodingException e) {
-						test.res = null;
+			for (int i = 0; i < ITER_COUNT; ++i) {
+				for (Test test : mList) {
+					if (test.cs == null) {
+						test.res = new String(test.b, Charsets.NIO_CHARSET_UTF_8);
+					} else {
+						try {
+							test.res = new String(test.b, test.cs);
+						} catch (UnsupportedEncodingException e) {
+							test.res = null;
+						}
+					}
+
+					if (!test.check.equals(test.res)) {
+						return null;
 					}
 				}
 			}
+
+			Log.i(TAG, "Task done");
 
 			return null;
 		}
@@ -172,5 +198,5 @@ public class MainActivity extends Activity {
 	}
 
 	private TextView mTextView;
-	private TestTask mTask;
+	private List<TestTask> mTaskList;
 }
