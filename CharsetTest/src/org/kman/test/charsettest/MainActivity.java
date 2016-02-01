@@ -3,6 +3,8 @@ package org.kman.test.charsettest;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.app.Activity;
 import android.os.AsyncTask;
@@ -18,6 +20,13 @@ public class MainActivity extends Activity {
 
 	private static final int TASK_COUNT = 10;
 	private static final int ITER_COUNT = 10000;
+
+	private static String ENCODED_WORD_PATTERN_STRING = "=\\?([a-z0-9_\\-]+)\\?(Q|B)\\?([^\\?]*)\\?=";
+	private static Pattern ENCODED_WORD_PATTERN = Pattern
+			.compile(ENCODED_WORD_PATTERN_STRING, Pattern.CASE_INSENSITIVE);
+
+	private static String ENCODED_STRING = "=?UTF-8?B?UmU6INCf0YDQvtCx0LvQtdC80LAg0L7RgtC+0LHRgNCw0LbQtdC90LjRjyDRgtC10LzRiw==?= "
+			+ "=?UTF-8?B?INC/0LjRgdGM0LzQsCDQvdCwIEFuZHJvaWQgNi4wLjE=?=";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -154,6 +163,7 @@ public class MainActivity extends Activity {
 		TestTask(MainActivity activity, Test[] list) {
 			mActivity = activity;
 			mList = list;
+			mSbDummy = new StringBuilder();
 		}
 
 		void setActivity(MainActivity activity) {
@@ -165,18 +175,32 @@ public class MainActivity extends Activity {
 
 			for (int i = 0; i < ITER_COUNT; ++i) {
 				for (Test test : mList) {
-					if (test.cs == null) {
-						test.res = new String(test.b, Charsets.NIO_CHARSET_UTF_8);
-					} else {
-						try {
-							test.res = new String(test.b, test.cs);
-						} catch (UnsupportedEncodingException e) {
-							test.res = null;
-						}
-					}
 
-					if (!test.check.equals(test.res)) {
-						return null;
+					final Matcher m = ENCODED_WORD_PATTERN.matcher(ENCODED_STRING);
+					if (m.find()) {
+
+						final String matchCharset = m.group(1);
+						final char matchQB = m.group(2).charAt(0);
+						final String matchEncoded = m.group(3);
+
+						final int start = m.start();
+
+						mSbDummy.append(matchCharset).append(matchQB);
+						mSbDummy.append(matchEncoded).append(start);
+
+						if (test.cs == null) {
+							test.res = new String(test.b, Charsets.NIO_CHARSET_UTF_8);
+						} else {
+							try {
+								test.res = new String(test.b, test.cs);
+							} catch (UnsupportedEncodingException e) {
+								test.res = null;
+							}
+						}
+
+						if (!test.check.equals(test.res)) {
+							return null;
+						}
 					}
 				}
 			}
@@ -195,6 +219,8 @@ public class MainActivity extends Activity {
 
 		private Test[] mList;
 		private MainActivity mActivity;
+
+		private StringBuilder mSbDummy;
 	}
 
 	private TextView mTextView;
