@@ -1,0 +1,13 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="org.kman.test.nnotify.MainActivity" >
+
+    <item
+        android:id="@+id/action_notfy_single"
+        android:title="@string/action_notify_single"/>
+
+    <item
+        android:id="@+id/action_notify_stacked"
+        android:title="@string/action_notify_stacked"/>
+
+</menu>
