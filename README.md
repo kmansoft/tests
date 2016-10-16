@@ -1,3 +1,17 @@
+### AndroidNContextMenu
+
+Builds with Android Studio / gradle in its own directory.
+
+When using Holo theme on Android 7 (mine is a Nexus 5X), context menus have wrong styling (material not holo) and the location is wrong (bottom of the screen).
+
+### NNotifyTest
+
+https://code.google.com/p/android/issues/detail?id=203146
+
+Run on Android N, compare Menu -> Notify (single) vs. Notify (stacked).
+
+The "stacked" notification should have action buttons for the entire stack (group), before the individual items are expanded, but it doesn't.
+
 ### KitKatAlarmTest
 **Demonstrates an issue with AlarmManager alarms being delivered too early on Samsung devices (tested on two) for targetApi=19**
 
@@ -51,10 +65,3 @@ The issue does not occur without estabishing network connections.
 It seems that imap.gmail.com/SSL/993 is special, or maybe all IMAP severs are. Connecting to a web server
 instead still gets some early alarms, but they're only early by 30-40 seconds. Maybe this was a coincidence.
 
-### NNotifyTest
-
-https://code.google.com/p/android/issues/detail?id=203146
-
-Run on Android N, compare Menu -> Notify (single) vs. Notify (stacked).
-
-The "stacked" notification should have action buttons for the entire stack (group), before the individual items are expanded, but it doesn't.

@@ -1,0 +1,7 @@
+<resources>
+	<string name="app_name">AndroidNContextMenu</string>
+
+	<string name="help">Long press on groups / children to see wrong styling (material) and location of context menu.
+		Only Android 7 with Holo theme(s). Was fine on Android 5.0 - 5.1 - 6.0. Regression.</string>
+
+</resources>
