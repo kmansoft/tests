@@ -1,3 +1,3 @@
 [submodule "JobWorkServiceTest"]
 	path = JobWorkServiceTest
-	url = github.com:kmansoft/JobWorkServiceTest.git
+	url = git@github.com:kmansoft/JobWorkServiceTest.git
